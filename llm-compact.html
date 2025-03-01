@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LLM比較: 自己回帰型 vs 拡散型</title>
+  <style>
+    :root {
+      --auto-color: #3b82f6;
+      --diff-color: #8b5cf6;
+      --background: #f8fafc;
+      --text: #1e293b;
+      --border: #e2e8f0;
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--background);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 20px;
+    }
+    
+    header {
+      grid-column: 1 / -1;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 8px;
+      color: #0f172a;
+    }
+    
+    .model-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .card-header {
+      color: white;
+      padding: 16px;
+      font-weight: 600;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .auto-header {
+      background-color: var(--auto-color);
+    }
+    
+    .diff-header {
+      background-color: var(--diff-color);
+    }
+    
+    .card-content {
+      padding: 20px;
+      flex: 1;
+    }
+    
+    .feature-list {
+      list-style-type: none;
+    }
+    
+    .feature-item {
+      margin-bottom: 12px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    
+    .feature-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      flex-shrink: 0;
+      font-size: 14px;
+      color: white;
+    }
+    
+    .auto-icon {
+      background-color: var(--auto-color);
+    }
+    
+    .diff-icon {
+      background-color: var(--diff-color);
+    }
+    
+    .negative-icon {
+      background-color: #ef4444;
+    }
+    
+    .feature-label strong {
+      display: block;
+      margin-bottom: 2px;
+    }
+    
+    .usecase-section {
+      grid-column: 1 / -1;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      display: flex;
+      align-items: flex-start;
+    }
+    
+    .usecase-title {
+      width: 150px;
+      padding-right: 15px;
+      flex-shrink: 0;
+    }
+    
+    h2 {
+      font-size: 1.2rem;
+      color: #0f172a;
+      margin-top: 0;
+    }
+    
+    .legend {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+    }
+    
+    .legend-color {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+    }
+    
+    .auto-color {
+      background-color: var(--auto-color);
+    }
+    
+    .diff-color {
+      background-color: var(--diff-color);
+    }
+    
+    .usecase-content {
+      flex: 1;
+    }
+    
+    .usecase-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 12px;
+    }
+    
+    .usecase-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding: 12px 8px;
+      border-radius: 8px;
+      transition: transform 0.2s;
+      min-height: 0;
+    }
+    
+    .usecase-card:hover {
+      transform: translateY(-3px);
+    }
+    
+    .usecase-auto {
+      background-color: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+    
+    .usecase-diff {
+      background-color: rgba(139, 92, 246, 0.1);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+    }
+    
+    .usecase-icon {
+      font-size: 1.5rem;
+      margin-bottom: 8px;
+    }
+    
+    .usecase-auto .usecase-icon {
+      color: var(--auto-color);
+    }
+    
+    .usecase-diff .usecase-icon {
+      color: var(--diff-color);
+    }
+    
+    .usecase-label {
+      font-size: 0.75rem;
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+    
+    .usecase-reason {
+      font-size: 0.65rem;
+      color: #64748b;
+      line-height: 1.2;
+    }
+    
+    @media (max-width: 768px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
+      
+      .usecase-section {
+        flex-direction: column;
+      }
+      
+      .usecase-title {
+        width: 100%;
+        margin-bottom: 15px;
+      }
+      
+      .legend {
+        flex-direction: row;
+        margin-top: 0;
+      }
+      
+      .usecase-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .usecase-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    
+    @media print {
+      body {
+        background-color: white;
+      }
+      
+      .model-card, .usecase-section {
+        box-shadow: none;
+        border: 1px solid var(--border);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>自己回帰型 vs 拡散型LLM</h1>
+    </header>
+    
+    <!-- 自己回帰型LLM -->
+    <div class="model-card">
+      <div class="card-header auto-header">
+        <span>自己回帰型LLM</span>
+      </div>
+      <div class="card-content">
+        <ul class="feature-list">
+          <li class="feature-item">
+            <div class="feature-icon auto-icon">1</div>
+            <div class="feature-label">
+              <strong>モデル特性</strong>
+              トークンを順番に一つずつ生成（GPT-4, Claude）
+            </div>
+          </li>
+          <li class="feature-item">
+            <div class="feature-icon auto-icon">2</div>
+            <div class="feature-label">
+              <strong>強み</strong>
+              長文の一貫性維持、文脈理解、高度な推論能力
+            </div>
+          </li>
+          <li class="feature-item">
+            <div class="feature-icon auto-icon">3</div>
+            <div class="feature-label">
+              <strong>特徴</strong>
+              成熟技術、広く普及、数千億パラメータ規模
+            </div>
+          </li>
+          <li class="feature-item">
+            <div class="feature-icon negative-icon">!</div>
+            <div class="feature-label">
+              <strong>弱み</strong>
+              生成速度が比較的遅い、計算コストが高い、逐次処理のため並列化が限定的
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+    
+    <!-- 拡散型LLM -->
+    <div class="model-card">
+      <div class="card-header diff-header">
+        <span>拡散型LLM</span>
+      </div>
+      <div class="card-content">
+        <ul class="feature-list">
+          <li class="feature-item">
+            <div class="feature-icon diff-icon">1</div>
+            <div class="feature-label">
+              <strong>モデル特性</strong>
+              テキストを一度に並行生成（Mercury, LLaDA）
+            </div>
+          </li>
+          <li class="feature-item">
+            <div class="feature-icon diff-icon">2</div>
+            <div class="feature-label">
+              <strong>強み</strong>
+              圧倒的な生成速度（10倍以上）、コスト効率、柔軟な編集
+            </div>
+          </li>
+          <li class="feature-item">
+            <div class="feature-icon diff-icon">3</div>
+            <div class="feature-label">
+              <strong>特徴</strong>
+              新興技術、80億パラメータ規模、品質向上進行中
+            </div>
+          </li>
+          <li class="feature-item">
+            <div class="feature-icon negative-icon">!</div>
+            <div class="feature-label">
+              <strong>弱み</strong>
+              長文の一貫性に課題、可変長生成の難しさ、複雑な推論では精度が劣る
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+    
+    <!-- ユースケース別の適性比較 -->
+    <div class="usecase-section">
+      <div class="usecase-title">
+        <h2>ユースケース別の適性比較</h2>
+        <div class="legend">
+          <div class="legend-item">
+            <div class="legend-color auto-color"></div>
+            <span>自己回帰型</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color diff-color"></div>
+            <span>拡散型</span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="usecase-content">
+        <div class="usecase-grid">
+          
+          
+          <!-- 自己回帰型に適したユースケース -->
+          <div class="usecase-card usecase-auto">
+            <div class="usecase-icon">⚖️</div>
+            <div class="usecase-label">専門分野Q&A</div>
+            <div class="usecase-reason">高信頼性と推論精度</div>
+          </div>
+          
+          <div class="usecase-card usecase-auto">
+            <div class="usecase-icon">📄</div>
+            <div class="usecase-label">長文生成・分析</div>
+            <div class="usecase-reason">文脈一貫性と長大入力</div>
+          </div>
+          
+          <div class="usecase-card usecase-auto">
+            <div class="usecase-icon">🧩</div>
+            <div class="usecase-label">複雑な推論</div>
+            <div class="usecase-reason">段階的思考と論理連鎖</div>
+          </div>
+
+          <!-- 拡散型に適したユースケース -->
+          <div class="usecase-card usecase-diff">
+            <div class="usecase-icon">💻</div>
+            <div class="usecase-label">リアルタイムコード補完</div>
+            <div class="usecase-reason">待ち時間なしの即時応答</div>
+          </div>
+          
+          <div class="usecase-card usecase-diff">
+            <div class="usecase-icon">🔄</div>
+            <div class="usecase-label">大量リクエスト処理</div>
+            <div class="usecase-reason">高速・低コストで多数対応</div>
+          </div>
+          
+          <div class="usecase-card usecase-diff">
+            <div class="usecase-icon">✏️</div>
+            <div class="usecase-label">テキスト部分編集</div>
+            <div class="usecase-reason">特定部分のみ柔軟書換</div>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
