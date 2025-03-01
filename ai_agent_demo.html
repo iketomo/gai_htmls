@@ -1,0 +1,1469 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIカスタマーサポートプロセスフロー</title>
+    <style>
+        :root {
+            --primary: #3498db;
+            --secondary: #2ecc71;
+            --warning: #f39c12;
+            --danger: #e74c3c;
+            --info: #9b59b6;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --gray: #95a5a6;
+            --corporate: #34495e;
+            --web: #16a085;
+            --knowledge: #8e44ad;
+        }
+        
+        body {
+            font-family: 'Hiragino Sans', 'Meiryo', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 20px;
+            color: var(--dark);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background-color: var(--dark);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        
+        .header p {
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 30px;
+            gap: 15px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+            transform: translateY(-2px);
+        }
+        
+        button:disabled {
+            background-color: var(--gray);
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        #pauseBtn.paused {
+            background-color: var(--warning);
+        }
+        
+        .workflow-container {
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            gap: 20px;
+            min-height: 800px;
+            position: relative;
+        }
+        
+        .chat-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .chat-header {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px;
+            font-weight: bold;
+        }
+        
+        .chat-messages {
+            flex: 1;
+            padding: 15px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            min-height: 600px;
+        }
+        
+        .message {
+            max-width: 80%;
+            padding: 10px 15px;
+            border-radius: 18px;
+            font-size: 14px;
+            position: relative;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.5s ease;
+        }
+        
+        .message.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .user-message {
+            background-color: var(--light);
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+        
+        .ai-message {
+            background-color: var(--primary);
+            color: white;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+        
+        .thinking {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            font-size: 12px;
+            color: var(--gray);
+            margin-left: 10px;
+        }
+        
+        .thinking span {
+            width: 6px;
+            height: 6px;
+            background-color: var(--gray);
+            border-radius: 50%;
+            animation: thinking 1.4s infinite ease-in-out both;
+        }
+        
+        .thinking span:nth-child(1) { animation-delay: 0s; }
+        .thinking span:nth-child(2) { animation-delay: 0.2s; }
+        .thinking span:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes thinking {
+            0%, 80%, 100% { transform: scale(0); }
+            40% { transform: scale(1); }
+        }
+        
+        .chat-input {
+            display: flex;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-top: 1px solid #eee;
+        }
+        
+        .chat-input input {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            outline: none;
+        }
+        
+        .chat-input button {
+            margin-left: 10px;
+            border-radius: 20px;
+            padding: 8px 16px;
+        }
+        
+        .data-sources {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+        
+        .data-source {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            height: 200px;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s;
+        }
+        
+        .data-source.active {
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+            transform: translateY(-5px);
+        }
+        
+        .source-header {
+            padding: 12px;
+            font-weight: bold;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .company-db {
+            background-color: var(--corporate);
+        }
+        
+        .web-search {
+            background-color: var(--web);
+        }
+        
+        .knowledge-base {
+            background-color: var(--knowledge);
+        }
+        
+        .source-icon {
+            width: 24px;
+            height: 24px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+        }
+        
+        .source-content {
+            flex: 1;
+            padding: 12px;
+            font-size: 13px;
+            overflow-y: auto;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+        
+        .source-content.show {
+            opacity: 1;
+        }
+        
+        .search-result {
+            padding: 8px;
+            border-bottom: 1px solid #eee;
+            transition: background-color 0.3s;
+        }
+        
+        .search-result.highlighted {
+            background-color: rgba(52, 152, 219, 0.1);
+            border-left: 3px solid var(--primary);
+        }
+        
+        .result-title {
+            font-weight: bold;
+            margin-bottom: 4px;
+            font-size: 14px;
+        }
+        
+        .result-snippet {
+            font-size: 12px;
+            color: #666;
+        }
+        
+        .process-flow {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            position: relative;
+            min-height: 640px;
+            overflow-y: auto;
+            max-height: calc(100vh - 250px);
+        }
+        
+        .timeline {
+            position: absolute;
+            left: 20px;
+            top: 20px;
+            bottom: 20px;
+            width: 4px;
+            background-color: var(--light);
+            border-radius: 2px;
+        }
+        
+        .timeline-progress {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            background-color: var(--primary);
+            border-radius: 2px;
+            height: 0;
+            transition: height 0.5s linear;
+        }
+        
+        .process-node {
+            position: absolute;
+            left: -12px;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: white;
+            border: 4px solid var(--primary);
+            z-index: 2;
+            transition: all 0.3s;
+            transform: scale(0);
+        }
+        
+        .process-node.active {
+            transform: scale(1);
+        }
+        
+        .process-node.completed {
+            background-color: var(--primary);
+        }
+        
+        .process-node.db-task {
+            border-color: var(--corporate);
+        }
+        
+        .process-node.db-task.completed {
+            background-color: var(--corporate);
+        }
+        
+        .process-node.web-task {
+            border-color: var(--web);
+        }
+        
+        .process-node.web-task.completed {
+            background-color: var(--web);
+        }
+        
+        .process-node.knowledge-task {
+            border-color: var(--knowledge);
+        }
+        
+        .process-node.knowledge-task.completed {
+            background-color: var(--knowledge);
+        }
+        
+        .process-content {
+            position: absolute;
+            left: 40px;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            background-color: white;
+            border-left: 4px solid var(--primary);
+            width: calc(100% - 100px);
+            opacity: 0;
+            transform: translateX(-20px);
+            transition: all 0.5s;
+            position: relative;
+            margin-bottom: 20px;
+        }
+        
+        .process-content.db-task {
+            border-left: 4px solid var(--corporate);
+            background-color: rgba(52, 73, 94, 0.1);
+        }
+        
+        .process-content.web-task {
+            border-left: 4px solid var(--web);
+            background-color: rgba(22, 160, 133, 0.1);
+        }
+        
+        .process-content.knowledge-task {
+            border-left: 4px solid var(--knowledge);
+            background-color: rgba(142, 68, 173, 0.1);
+        }
+        
+        .process-content.active {
+            opacity: 1;
+            transform: translateX(0);
+        }
+        
+        .process-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .process-badge {
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            color: white;
+            background-color: var(--primary);
+        }
+        
+        .db-task .process-badge {
+            background-color: var(--corporate);
+        }
+        
+        .web-task .process-badge {
+            background-color: var(--web);
+        }
+        
+        .knowledge-task .process-badge {
+            background-color: var(--knowledge);
+        }
+        
+        .data-flow {
+            position: absolute;
+            transition: all 0.5s;
+            opacity: 0;
+            z-index: 5;
+            pointer-events: none;
+        }
+        
+        .data-flow.show {
+            opacity: 1;
+        }
+        
+        .data-packet {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            animation: pulse 1.5s infinite;
+        }
+        
+        .data-packet.db-packet {
+            background-color: var(--corporate);
+        }
+        
+        .data-packet.web-packet {
+            background-color: var(--web);
+        }
+        
+        .data-packet.knowledge-packet {
+            background-color: var(--knowledge);
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(0.8); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(0.8); opacity: 0.8; }
+        }
+        
+        .verification-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-right: 8px;
+            color: white;
+        }
+        
+        .verified-true {
+            background-color: var(--secondary);
+        }
+        
+        .verified-false {
+            background-color: var(--danger);
+        }
+        
+        .verified-partial {
+            background-color: var(--warning);
+        }
+        
+        .confidence-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-right: 8px;
+            background-color: rgba(52, 152, 219, 0.1);
+            color: var(--primary);
+        }
+        
+        .info-panel {
+            margin-top: 30px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        
+        .info-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .info-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .info-card {
+            flex: 1;
+            min-width: 250px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 15px;
+        }
+        
+        .info-card-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .info-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>AIカスタマーサポート多次元プロセスフロー</h1>
+            <p>お客様の質問に対して多様なデータソースから情報を収集・検証し、最適な回答を提供するAIの処理を可視化</p>
+        </div>
+        
+        <div class="controls">
+            <button id="startBtn">処理開始</button>
+            <button id="pauseBtn" disabled>一時停止</button>
+            <button id="resetBtn" disabled>リセット</button>
+        </div>
+        
+        <div class="workflow-container">
+            <div class="chat-container">
+                <div class="chat-header">
+                    顧客チャット
+                </div>
+                <div class="chat-messages" id="chatMessages">
+                    <!-- チャットメッセージは動的に生成 -->
+                </div>
+                <div class="chat-input">
+                    <input type="text" placeholder="メッセージを入力..." disabled value="薬の副作用について教えてください。">
+                    <button disabled>送信</button>
+                </div>
+            </div>
+            
+            <div class="process-flow" id="processFlow">
+                <div class="timeline">
+                    <div class="timeline-progress" id="timelineProgress"></div>
+                </div>
+                
+                <!-- プロセスノードとコンテンツは動的に生成 -->
+            </div>
+            
+            <div class="data-sources">
+                <div class="data-source" id="companyDB">
+                    <div class="source-header company-db">
+                        <div class="source-icon">DB</div>
+                        社内医療データベース
+                    </div>
+                    <div class="source-content" id="companyDBContent">
+                        <!-- データベース検索結果は動的に生成 -->
+                    </div>
+                </div>
+                
+                <div class="data-source" id="webSearch">
+                    <div class="source-header web-search">
+                        <div class="source-icon">W</div>
+                        ウェブ検索
+                    </div>
+                    <div class="source-content" id="webSearchContent">
+                        <!-- ウェブ検索結果は動的に生成 -->
+                    </div>
+                </div>
+                
+                <div class="data-source" id="knowledgeBase">
+                    <div class="source-header knowledge-base">
+                        <div class="source-icon">K</div>
+                        知識ベース
+                    </div>
+                    <div class="source-content" id="knowledgeBaseContent">
+                        <!-- 知識ベース検索結果は動的に生成 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="info-panel">
+            <div class="info-title">AIエージェントによる多次元情報処理のメリット</div>
+            <div class="info-content">
+                <div class="info-card">
+                    <div class="info-card-title">
+                        <div class="info-icon">1</div>
+                        情報の総合的検証
+                    </div>
+                    <p>複数のデータソースから情報を収集し、相互に検証することで、より正確で信頼性の高い回答を提供できます。特に医療情報など重要な情報を扱う場合に有効です。</p>
+                </div>
+                
+                <div class="info-card">
+                    <div class="info-card-title">
+                        <div class="info-icon">2</div>
+                        迅速な対応と詳細なサポート
+                    </div>
+                    <p>AIが瞬時に複数のデータソースにアクセスし、情報を処理するため、人間のオペレーターでは難しい速度と詳細さで顧客サポートを提供できます。</p>
+                </div>
+                
+                <div class="info-card">
+                    <div class="info-card-title">
+                        <div class="info-icon">3</div>
+                        継続的な知識更新
+                    </div>
+                    <p>対応内容をデータベースに自動的に追加することで、AIの知識が継続的に更新され、サービス品質が向上します。過去の対応履歴から学習し続けるシステムが構築できます。</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const processFlow = document.getElementById('processFlow');
+            let timelineProgress = document.getElementById('timelineProgress');
+            const chatMessages = document.getElementById('chatMessages');
+            const companyDB = document.getElementById('companyDB');
+            const webSearch = document.getElementById('webSearch');
+            const knowledgeBase = document.getElementById('knowledgeBase');
+            const companyDBContent = document.getElementById('companyDBContent');
+            const webSearchContent = document.getElementById('webSearchContent');
+            const knowledgeBaseContent = document.getElementById('knowledgeBaseContent');
+            const startBtn = document.getElementById('startBtn');
+            const pauseBtn = document.getElementById('pauseBtn');
+            const resetBtn = document.getElementById('resetBtn');
+            
+            // 変数宣言を上部に移動
+            let animationInProgress = false;
+            let currentStep = 0;
+            let timelineHeight = 0;
+            let animationPaused = false;
+            let animationTimers = [];
+            let startTime = 0;
+            let pausedTime = 0;
+            
+            // 処理ステップの定義
+            const processSteps = [
+                {
+                    id: 1,
+                    title: "質問受信・分析",
+                    time: 0,
+                    duration: 3,
+                    badge: "入力処理",
+                    type: "input",
+                    description: "AIエージェントがユーザーから受信した「薬の副作用について教えてください」という質問を分析します。質問内容から、医薬品関連の専門的情報が必要であると判断しました。",
+                    dataFlows: []
+                },
+                {
+                    id: 2,
+                    title: "社内医療データベース検索",
+                    time: 3,
+                    duration: 4,
+                    badge: "データ収集",
+                    type: "db",
+                    description: "社内の医療データベースから副作用に関する情報を検索します。製品ごとの副作用情報、発生頻度、対処法などの公式情報を取得します。",
+                    dataFlows: [
+                        { from: "process", to: "companyDB", delay: 0.5, type: "db" }
+                    ],
+                    activateSource: "companyDB",
+                    sourceData: {
+                        type: "companyDB",
+                        results: [
+                            {
+                                title: "一般的な医薬品副作用ガイドライン",
+                                snippet: "医薬品の副作用は、主作用以外の作用で有害なものを指します。重篤度や頻度によって分類され、対応方法が異なります。"
+                            },
+                            {
+                                title: "抗生物質の一般的副作用データ",
+                                snippet: "抗生物質による一般的な副作用には、消化器症状（下痢、吐き気）、アレルギー反応、腸内細菌叢の変化などがあります。"
+                            },
+                            {
+                                title: "副作用報告システムガイド",
+                                snippet: "医薬品の副作用を経験した場合の報告方法と対応フローについての説明。医療機関向け情報を含む。"
+                            }
+                        ]
+                    }
+                },
+                {
+                    id: 3,
+                    title: "ウェブ検索による情報補完",
+                    time: 7,
+                    duration: 4,
+                    badge: "外部情報",
+                    type: "web",
+                    description: "公開されているウェブ情報から、最新の研究結果や一般的な説明を収集します。複数の信頼できる医療サイトからの情報を統合します。",
+                    dataFlows: [
+                        { from: "process", to: "webSearch", delay: 0.5, type: "web" }
+                    ],
+                    activateSource: "webSearch",
+                    sourceData: {
+                        type: "webSearch",
+                        results: [
+                            {
+                                title: "厚生労働省: 医薬品副作用被害救済制度",
+                                snippet: "医薬品を適正に使用したにもかかわらず発生した副作用による健康被害者を救済するための公的制度について。"
+                            },
+                            {
+                                title: "日本薬剤師会: 薬の副作用とその対処法",
+                                snippet: "一般的な薬の副作用と、その症状が出た場合の対処方法について患者向けに解説しています。"
+                            },
+                            {
+                                title: "医学ジャーナル: 新世代抗生物質の副作用プロファイル",
+                                snippet: "最新の研究に基づく、新世代抗生物質の副作用リスク評価と臨床での留意点について解説。"
+                            }
+                        ]
+                    }
+                },
+                {
+                    id: 4,
+                    title: "知識ベースからの情報抽出",
+                    time: 11,
+                    duration: 3,
+                    badge: "知識活用",
+                    type: "knowledge",
+                    description: "AIの一般知識ベースから関連する医療情報を抽出します。過去の質問応答履歴も参照し、類似のケースでの回答パターンを確認します。",
+                    dataFlows: [
+                        { from: "process", to: "knowledgeBase", delay: 0.5, type: "knowledge" }
+                    ],
+                    activateSource: "knowledgeBase",
+                    sourceData: {
+                        type: "knowledgeBase",
+                        results: [
+                            {
+                                title: "副作用の分類と評価方法",
+                                snippet: "副作用の重症度分類とリスク評価方法。A (軽微) からE (生命を脅かす) までの5段階評価と発生頻度の統計的解釈。"
+                            },
+                            {
+                                title: "患者への副作用説明ガイドライン",
+                                snippet: "医療従事者が患者に副作用について説明する際の推奨アプローチ。リスクコミュニケーション理論に基づく説明方法。"
+                            },
+                            {
+                                title: "よくある質問: 薬の副作用について",
+                                snippet: "過去に寄せられた副作用に関する質問と専門家による回答のデータベース。典型的な懸念事項と説明例。"
+                            }
+                        ]
+                    }
+                },
+                {
+                    id: 5,
+                    title: "情報の照合・検証",
+                    time: 14,
+                    duration: 4,
+                    badge: "検証",
+                    type: "verify",
+                    description: "収集した情報を相互に照合し、正確性と一貫性を検証します。複数のソースで矛盾する情報がないか確認し、信頼性の高い情報を優先します。",
+                    dataFlows: [
+                        { from: "companyDB", to: "process", delay: 0.5, type: "db" },
+                        { from: "webSearch", to: "process", delay: 1.5, type: "web" },
+                        { from: "knowledgeBase", to: "process", delay: 2.5, type: "knowledge" }
+                    ],
+                    verification: [
+                        { source: "社内DB", status: "verified-true", confidence: "98%" },
+                        { source: "ウェブ情報", status: "verified-partial", confidence: "82%" },
+                        { source: "知識ベース", status: "verified-true", confidence: "95%" }
+                    ]
+                },
+                {
+                    id: 6,
+                    title: "回答の生成と送信",
+                    time: 18,
+                    duration: 3,
+                    badge: "出力",
+                    type: "output",
+                    description: "検証済みの情報を統合し、わかりやすく構造化された回答を生成します。専門用語の説明を含め、質問者の理解レベルに合わせた情報提供を行います。",
+                    dataFlows: [
+                        { from: "process", to: "chat", delay: 1, type: "output" }
+                    ],
+                    message: "薬の副作用は医薬品の主目的以外の望ましくない作用のことです。副作用は軽度（頭痛、吐き気など）から重度（アレルギー反応、臓器障害）まで様々です。頻度も「非常に稀」から「非常に高頻度」まで分類されます。副作用を経験した場合は、医師や薬剤師に相談することが重要です。また、厚生労働省の副作用救済制度もあります。詳細な薬の情報は薬剤師にお尋ねいただくか、添付文書をご確認ください。何か具体的な薬についてお知りになりたい場合は、お知らせください。"
+                },
+                {
+                    id: 7,
+                    title: "回答内容のデータベース登録",
+                    time: 21,
+                    duration: 3,
+                    badge: "データ更新",
+                    type: "db",
+                    description: "対応内容と質問のパターンを社内データベースに記録します。将来の類似質問への対応を向上させるため、質問と回答のペアを保存します。",
+                    dataFlows: [
+                        { from: "process", to: "companyDB", delay: 1, type: "db" }
+                    ],
+                    dbUpdate: {
+                        type: "新規QAペア登録",
+                        entry: "質問「薬の副作用について教えてください」と回答を登録しました。関連キーワード: 医薬品, 副作用, 症状, 対処法, 相談先"
+                    }
+                }
+            ];
+            
+            // 初期メッセージの設定
+            const initialMessage = {
+                type: "user",
+                text: "薬の副作用について教えてください。"
+            };
+            
+            // ワークフローの初期化
+            const initializeFlow = () => {
+                // プロセスフローをクリア
+                processFlow.innerHTML = '';
+                
+                // 処理ステップを表示するコンテナを作成
+                const stepsContainer = document.createElement('div');
+                stepsContainer.id = 'stepsContainer';
+                stepsContainer.style.position = 'relative';
+                stepsContainer.style.paddingLeft = '30px';
+                stepsContainer.style.paddingTop = '20px';
+                processFlow.appendChild(stepsContainer);
+                
+                // タイムラインをステップコンテナ内に移動
+                const timeline = document.createElement('div');
+                timeline.className = 'timeline';
+                timeline.style.position = 'absolute';
+                timeline.style.left = '10px';
+                timeline.style.top = '0';
+                timeline.style.bottom = '0';
+                stepsContainer.appendChild(timeline);
+                
+                // プログレスバーも同様に
+                const progress = document.createElement('div');
+                progress.id = 'timelineProgress';
+                progress.className = 'timeline-progress';
+                timeline.appendChild(progress);
+                
+                // タイムラインの参照を更新
+                timelineProgress = progress; // グローバル変数を更新
+                
+                // 各プロセスステップを生成
+                processSteps.forEach((step, index) => {
+                    // ステップのコンテナを作成
+                    const stepContainer = document.createElement('div');
+                    stepContainer.className = 'step-container';
+                    stepContainer.id = `step-container-${step.id}`;
+                    stepContainer.style.position = 'relative';
+                    stepContainer.style.marginBottom = '30px';
+                    stepContainer.style.minHeight = '80px';
+                    stepsContainer.appendChild(stepContainer);
+                    
+                    // ノードの生成
+                    const node = document.createElement('div');
+                    node.className = 'process-node';
+                    node.id = `node-${step.id}`;
+                    node.style.position = 'absolute';
+                    node.style.left = '-22px';
+                    node.style.top = '20px';
+                    stepContainer.appendChild(node);
+                    
+                    // コンテンツの生成
+                    const content = document.createElement('div');
+                    content.className = 'process-content';
+                    content.id = `content-${step.id}`;
+                    content.style.position = 'relative';
+                    content.style.marginBottom = '0';
+                    
+                    let contentHTML = `
+                        <div class="process-title">
+                            ${step.title}
+                            <span class="process-badge">${step.badge}</span>
+                        </div>
+                        <div class="process-description">${step.description}</div>
+                    `;
+                    
+                    // 検証結果表示（ある場合）
+                    if (step.verification) {
+                        contentHTML += `<div class="verification-results" style="margin-top: 10px;">`;
+                        step.verification.forEach(v => {
+                            contentHTML += `
+                                <div style="margin-bottom: 5px;">
+                                    <span class="verification-badge ${v.status}">${v.status === 'verified-true' ? '検証済' : v.status === 'verified-partial' ? '部分的に検証' : '未検証'}</span>
+                                    <span>${v.source}</span>
+                                    <span class="confidence-badge">信頼度: ${v.confidence}</span>
+                                </div>
+                            `;
+                        });
+                        contentHTML += `</div>`;
+                    }
+                    
+                    // DB更新情報（ある場合）
+                    if (step.dbUpdate) {
+                        contentHTML += `
+                            <div style="margin-top: 10px; padding: 8px; background-color: rgba(52, 73, 94, 0.1); border-radius: 4px;">
+                                <div style="font-weight: bold; margin-bottom: 5px;">${step.dbUpdate.type}</div>
+                                <div style="font-size: 13px;">${step.dbUpdate.entry}</div>
+                            </div>
+                        `;
+                    }
+                    
+                    content.innerHTML = contentHTML;
+                    stepContainer.appendChild(content);
+                });
+                
+                // 初期メッセージを表示
+                const messageEl = document.createElement('div');
+                messageEl.className = `message ${initialMessage.type}-message`;
+                messageEl.textContent = initialMessage.text;
+                chatMessages.appendChild(messageEl);
+                
+                // データソースコンテナを初期化
+                initializeDataSources();
+                
+                // 初期メッセージを表示
+                setTimeout(() => {
+                    document.querySelector('.message').classList.add('show');
+                }, 500);
+            };
+            
+            // データソースを初期化
+            const initializeDataSources = () => {
+                processSteps.forEach(step => {
+                    if (step.sourceData) {
+                        let contentHTML = '';
+                        step.sourceData.results.forEach((result, index) => {
+                            contentHTML += `
+                                <div class="search-result" id="${step.sourceData.type}-result-${index}">
+                                    <div class="result-title">${result.title}</div>
+                                    <div class="result-snippet">${result.snippet}</div>
+                                </div>
+                            `;
+                        });
+                        
+                        if (step.sourceData.type === 'companyDB') {
+                            companyDBContent.innerHTML = contentHTML;
+                        } else if (step.sourceData.type === 'webSearch') {
+                            webSearchContent.innerHTML = contentHTML;
+                        } else if (step.sourceData.type === 'knowledgeBase') {
+                            knowledgeBaseContent.innerHTML = contentHTML;
+                        }
+                    }
+                });
+            };
+            
+            // データフローアニメーションを作成
+            const createDataFlow = (from, to, delay, type) => {
+                const timerId = setTimeout(() => {
+                    if (animationPaused) return;
+                    
+                    let fromElement, toElement;
+                    let fromRect, toRect;
+                    
+                    try {
+                        // 始点の特定
+                        if (from === 'process') {
+                            fromElement = document.getElementById(`node-${currentStep}`);
+                            if (!fromElement) {
+                                console.error("Process node not found:", currentStep);
+                                return;
+                            }
+                            fromRect = fromElement.getBoundingClientRect();
+                        } else if (from === 'companyDB') {
+                            fromElement = companyDB;
+                            if (!fromElement) {
+                                console.error("CompanyDB element not found");
+                                return;
+                            }
+                            fromRect = fromElement.getBoundingClientRect();
+                        } else if (from === 'webSearch') {
+                            fromElement = webSearch;
+                            if (!fromElement) {
+                                console.error("WebSearch element not found");
+                                return;
+                            }
+                            fromRect = fromElement.getBoundingClientRect();
+                        } else if (from === 'knowledgeBase') {
+                            fromElement = knowledgeBase;
+                            if (!fromElement) {
+                                console.error("KnowledgeBase element not found");
+                                return;
+                            }
+                            fromRect = fromElement.getBoundingClientRect();
+                        }
+                        
+                        // 終点の特定
+                        if (to === 'process') {
+                            toElement = document.getElementById(`node-${currentStep}`);
+                            if (!toElement) {
+                                console.error("Process node not found:", currentStep);
+                                return;
+                            }
+                            toRect = toElement.getBoundingClientRect();
+                        } else if (to === 'companyDB') {
+                            toElement = companyDB;
+                            if (!toElement) {
+                                console.error("CompanyDB element not found");
+                                return;
+                            }
+                            toRect = toElement.getBoundingClientRect();
+                        } else if (to === 'webSearch') {
+                            toElement = webSearch;
+                            if (!toElement) {
+                                console.error("WebSearch element not found");
+                                return;
+                            }
+                            toRect = toElement.getBoundingClientRect();
+                        } else if (to === 'knowledgeBase') {
+                            toElement = knowledgeBase;
+                            if (!toElement) {
+                                console.error("KnowledgeBase element not found");
+                                return;
+                            }
+                            toRect = toElement.getBoundingClientRect();
+                        } else if (to === 'chat') {
+                            toElement = chatMessages;
+                            if (!toElement) {
+                                console.error("ChatMessages element not found");
+                                return;
+                            }
+                            toRect = toElement.getBoundingClientRect();
+                        }
+                        
+                        if (!processFlow) {
+                            console.error("ProcessFlow element not found");
+                            return;
+                        }
+                        const processFlowRect = processFlow.getBoundingClientRect();
+                        
+                        // データフロー要素を作成
+                        const dataFlow = document.createElement('div');
+                        dataFlow.className = 'data-flow';
+                        processFlow.appendChild(dataFlow);
+                        
+                        // パスの計算
+                        let startX, startY, endX, endY;
+                        
+                        if (from === 'process') {
+                            startX = fromRect.left - processFlowRect.left + fromRect.width / 2;
+                            startY = fromRect.top - processFlowRect.top + fromRect.height / 2;
+                        } else {
+                            startX = fromRect.left - processFlowRect.left;
+                            startY = fromRect.top - processFlowRect.top + fromRect.height / 2;
+                        }
+                        
+                        if (to === 'process') {
+                            endX = toRect.left - processFlowRect.left + toRect.width / 2;
+                            endY = toRect.top - processFlowRect.top + toRect.height / 2;
+                        } else if (to === 'chat') {
+                            endX = processFlowRect.width;
+                            endY = fromRect.top - processFlowRect.top + fromRect.height / 2;
+                        } else {
+                            endX = toRect.left - processFlowRect.left;
+                            endY = toRect.top - processFlowRect.top + toRect.height / 2;
+                        }
+                        
+                        // データパケットのみを作成（線なし）
+                        const dataPacket = document.createElement('div');
+                        
+                        // タイプに基づいてクラスを追加
+                        let packetClass = 'data-packet';
+                        if (type === 'db') {
+                            packetClass += ' db-packet';
+                        } else if (type === 'web') {
+                            packetClass += ' web-packet';
+                        } else if (type === 'knowledge') {
+                            packetClass += ' knowledge-packet';
+                        }
+                        
+                        dataPacket.className = packetClass;
+                        dataPacket.style.left = `${startX}px`;
+                        dataPacket.style.top = `${startY}px`;
+                        
+                        // パケットの移動アニメーション用のスタイルを追加
+                        dataPacket.style.transition = 'all 1.5s ease-in-out';
+                        
+                        dataFlow.appendChild(dataPacket);
+                        
+                        // アニメーション開始
+                        setTimeout(() => {
+                            if (animationPaused) return;
+                            
+                            dataFlow.classList.add('show');
+                            
+                            // パケットを目的地に移動
+                            setTimeout(() => {
+                                if (animationPaused) return;
+                                
+                                dataPacket.style.transform = `translate(${endX - startX}px, ${endY - startY}px)`;
+                                
+                                // 5秒後に非表示
+                                setTimeout(() => {
+                                    if (animationPaused) return;
+                                    
+                                    dataFlow.classList.remove('show');
+                                    setTimeout(() => {
+                                        if (dataFlow.parentNode) {
+                                            processFlow.removeChild(dataFlow);
+                                        }
+                                    }, 500);
+                                }, 3000);
+                            }, 100);
+                        }, 100);
+                        
+                        // データソースがアクティブな場合に結果をハイライト
+                        if ((from === 'companyDB' || from === 'webSearch' || from === 'knowledgeBase') && !animationPaused) {
+                            const sourceType = from;
+                            const results = document.querySelectorAll(`[id^="${sourceType}-result-"]`);
+                            results.forEach(result => {
+                                result.classList.add('highlighted');
+                            });
+                            
+                            setTimeout(() => {
+                                if (animationPaused) return;
+                                
+                                results.forEach(result => {
+                                    result.classList.remove('highlighted');
+                                });
+                            }, 3000);
+                        }
+                    } catch (error) {
+                        console.error("Error in createDataFlow:", error);
+                    }
+                }, delay * 1000);
+                
+                // タイマーIDを追加して後でクリアできるようにする
+                animationTimers.push(timerId);
+            }
+            
+            // AIの回答メッセージを表示
+            const showAIResponse = (text) => {
+                try {
+                    const thinkingEl = document.createElement('div');
+                    thinkingEl.className = 'thinking';
+                    thinkingEl.innerHTML = 'AIが考え中<span></span><span></span><span></span>';
+                    chatMessages.appendChild(thinkingEl);
+                    
+                    const thinkingTimerId = setTimeout(() => {
+                        if (animationPaused) return;
+                        
+                        try {
+                            if (thinkingEl.parentNode) {
+                                chatMessages.removeChild(thinkingEl);
+                            }
+                            
+                            const messageEl = document.createElement('div');
+                            messageEl.className = 'message ai-message';
+                            messageEl.textContent = text;
+                            chatMessages.appendChild(messageEl);
+                            
+                            setTimeout(() => {
+                                if (animationPaused) return;
+                                
+                                messageEl.classList.add('show');
+                                chatMessages.scrollTop = chatMessages.scrollHeight;
+                            }, 100);
+                        } catch (error) {
+                            console.error("Error showing AI message:", error);
+                        }
+                    }, 3000);
+                    
+                    // タイマーIDを追加
+                    animationTimers.push(thinkingTimerId);
+                } catch (error) {
+                    console.error("Error in showAIResponse:", error);
+                }
+            };
+            
+            // 現在のステップを処理
+            const processCurrentStep = () => {
+                if (currentStep >= processSteps.length || animationPaused) {
+                    console.log("Skipping step processing", { currentStep, stepsCount: processSteps.length, animationPaused });
+                    return;
+                }
+                
+                const step = processSteps[currentStep];
+                console.log("Processing step", { currentStep, stepId: step.id, stepTitle: step.title });
+                
+                // ノードとコンテンツをアクティブに
+                const node = document.getElementById(`node-${step.id}`);
+                const content = document.getElementById(`content-${step.id}`);
+                
+                if (!node || !content) {
+                    console.error("Node or content not found for step", step.id);
+                    return;
+                }
+                
+                // タイプに基づいてクラスを追加
+                if (step.type === 'db') {
+                    node.classList.add('db-task');
+                    content.classList.add('db-task');
+                } else if (step.type === 'web') {
+                    node.classList.add('web-task');
+                    content.classList.add('web-task');
+                } else if (step.type === 'knowledge') {
+                    node.classList.add('knowledge-task');
+                    content.classList.add('knowledge-task');
+                }
+                
+                node.classList.add('active');
+                content.classList.add('active');
+                
+                // アニメーション中のスクロール処理 - 新しいステップが表示されたら自動スクロール
+                const nodeRect = node.getBoundingClientRect();
+                const processFlowRect = processFlow.getBoundingClientRect();
+                const scrollPosition = nodeRect.top - processFlowRect.top - 100; // 上部に余白を設ける
+                
+                processFlow.scrollTo({
+                    top: scrollPosition,
+                    behavior: 'smooth'
+                });
+                
+                // データソースをアクティブに
+                if (step.activateSource) {
+                    const source = document.getElementById(step.activateSource);
+                    const sourceContent = document.getElementById(`${step.activateSource}Content`);
+                    
+                    if (source) source.classList.add('active');
+                    if (sourceContent) sourceContent.classList.add('show');
+                }
+                
+                // データフローを表示
+                if (step.dataFlows && step.dataFlows.length > 0) {
+                    step.dataFlows.forEach(flow => {
+                        if (!animationPaused) {
+                            createDataFlow(flow.from, flow.to, flow.delay, flow.type);
+                        }
+                    });
+                }
+                
+                // AIメッセージを表示
+                if (step.message && !animationPaused) {
+                    showAIResponse(step.message);
+                }
+                
+                // ステップの処理時間
+                const stepDuration = step.duration * 1000;
+                
+                // ステップ完了
+                if (!animationPaused) {
+                    const timerId = setTimeout(() => {
+                        if (animationPaused) return;
+                        
+                        if (node) node.classList.add('completed');
+                        
+                        currentStep++;
+                        
+                        if (currentStep < processSteps.length) {
+                            processCurrentStep();
+                        } else {
+                            // 全ステップ完了
+                            pauseBtn.disabled = true;
+                            resetBtn.disabled = false;
+                            animationInProgress = false;
+                        }
+                    }, stepDuration);
+                    
+                    // タイマーIDを保存して、一時停止時にクリアできるようにする
+                    animationTimers.push(timerId);
+                }
+            };
+            
+            // アニメーションの実行
+            const runAnimation = () => {
+                animationInProgress = true;
+                startBtn.disabled = true;
+                pauseBtn.disabled = false;
+                resetBtn.disabled = true;
+                
+                // アニメーションの状態リセット
+                animationPaused = false;
+                animationTimers = [];
+                
+                // タイムラインのリセット
+                if (timelineProgress) {
+                    timelineProgress.style.height = '0';
+                } else {
+                    console.error("Timeline progress element not found");
+                    // もし要素が見つからない場合は再取得
+                    timelineProgress = document.getElementById('timelineProgress');
+                    if (timelineProgress) timelineProgress.style.height = '0';
+                }
+                
+                // 開始時間を記録
+                startTime = Date.now();
+                pausedTime = 0;
+                
+                // デバッグログを追加
+                console.log("Animation started", {
+                    animationInProgress,
+                    timelineProgress,
+                    currentStep,
+                    processSteps: processSteps.length
+                });
+                
+                // 最初のステップから開始
+                if (currentStep === 0) {
+                    processCurrentStep();
+                }
+                
+                // タイムライン全体の高さを取得
+                const stepsContainer = document.getElementById('stepsContainer');
+                const totalHeight = stepsContainer ? stepsContainer.offsetHeight : 600;
+                
+                // プログレスバーアニメーション
+                const totalDuration = processSteps.reduce((total, step) => total + step.duration, 0) * 1000;
+                
+                const updateProgress = () => {
+                    if (animationPaused) return;
+                    
+                    const elapsed = Date.now() - startTime;
+                    const progress = Math.min(elapsed / totalDuration, 1);
+                    
+                    if (timelineProgress) {
+                        timelineProgress.style.height = `${progress * totalHeight}px`;
+                    }
+                    
+                    if (progress < 1 && !animationPaused) {
+                        const timerId = requestAnimationFrame(updateProgress);
+                        animationTimers.push(timerId);
+                    }
+                };
+                
+                const timerId = requestAnimationFrame(updateProgress);
+                animationTimers.push(timerId);
+            };
+            
+            // アニメーションの一時停止
+            const pauseAnimation = () => {
+                try {
+                    if (!animationInProgress) return;
+                    
+                    if (animationPaused) {
+                        // 再開
+                        animationPaused = false;
+                        pauseBtn.textContent = '再開';
+                        pauseBtn.classList.remove('paused');
+                        pausedTime = Date.now() - startTime;
+                        startTime = Date.now() - pausedTime;
+                        runAnimation();
+                    } else {
+                        // 一時停止
+                        animationPaused = true;
+                        pauseBtn.textContent = '再開';
+                        pauseBtn.classList.add('paused');
+                        pausedTime = Date.now() - startTime;
+                        
+                        // すべてのタイマーをクリア
+                        animationTimers.forEach(id => {
+                            if (typeof id === 'number') {
+                                clearTimeout(id);
+                            } else if (id) {
+                                cancelAnimationFrame(id);
+                            }
+                        });
+                        animationTimers = [];
+                    }
+                } catch (error) {
+                    console.error("Error in pauseAnimation:", error);
+                }
+            };
+            
+            // リセット機能
+            const resetAnimation = () => {
+                // アニメーションを停止
+                animationPaused = false;
+                pauseBtn.textContent = '一時停止';
+                pauseBtn.classList.remove('paused');
+                
+                // すべてのタイマーをクリア
+                animationTimers.forEach(id => {
+                    if (typeof id === 'number') {
+                        clearTimeout(id);
+                    } else {
+                        cancelAnimationFrame(id);
+                    }
+                });
+                animationTimers = [];
+                pausedTime = 0;
+                
+                // プロセスフローのリセット
+                document.querySelectorAll('.process-node').forEach(node => {
+                    node.classList.remove('active', 'completed');
+                    node.classList.remove('db-task', 'web-task', 'knowledge-task');
+                });
+                
+                document.querySelectorAll('.process-content').forEach(content => {
+                    content.classList.remove('active');
+                    content.classList.remove('db-task', 'web-task', 'knowledge-task');
+                });
+                
+                // データソースのリセット
+                document.querySelectorAll('.data-source').forEach(source => {
+                    source.classList.remove('active');
+                });
+                
+                document.querySelectorAll('.source-content').forEach(content => {
+                    content.classList.remove('show');
+                });
+                
+                document.querySelectorAll('.search-result').forEach(result => {
+                    result.classList.remove('highlighted');
+                });
+                
+                // データフローを削除
+                document.querySelectorAll('.data-flow').forEach(flow => {
+                    if (flow.parentNode) {
+                        flow.parentNode.removeChild(flow);
+                    }
+                });
+                
+                // AIのメッセージをリセット
+                const messages = document.querySelectorAll('.ai-message');
+                messages.forEach(message => {
+                    chatMessages.removeChild(message);
+                });
+                
+                // プログレスバーをリセット
+                const timelineProgress = document.getElementById('timelineProgress');
+                if (timelineProgress) {
+                    timelineProgress.style.height = '0';
+                }
+                
+                // スクロール位置をリセット
+                processFlow.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+                
+                // カウンターをリセット
+                currentStep = 0;
+                
+                // ボタン状態を更新
+                startBtn.disabled = false;
+                pauseBtn.disabled = true;
+                resetBtn.disabled = true;
+            };
+            
+            // 初期化
+            initializeFlow();
+            
+            // ボタンイベント
+            startBtn.addEventListener('click', runAnimation);
+            pauseBtn.addEventListener('click', pauseAnimation);
+            resetBtn.addEventListener('click', resetAnimation);
+            
+            // 初期メッセージを表示
+            setTimeout(() => {
+                document.querySelector('.message').classList.add('show');
+            }, 500);
+        });
+    </script>
+</body>
+</html>
