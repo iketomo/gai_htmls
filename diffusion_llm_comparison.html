@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>言語モデルの挙動比較</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 30px;
+        }
+        .model-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .model {
+            flex: 1;
+            min-width: 300px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            position: relative;
+        }
+        .model-title {
+            text-align: center;
+            font-size: 1.5em;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 10px;
+        }
+        .model-description {
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+        .model-visualization {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 250px;
+            font-family: monospace;
+            font-size: 18px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow-wrap: break-word;
+            line-height: 1.8;
+        }
+        .token {
+            display: inline-block;
+            padding: 3px 5px;
+            margin: 2px;
+            border-radius: 3px;
+            transition: all 0.5s ease;
+        }
+        .fixed-token {
+            background-color: #e0e0e0;
+            color: #666;
+        }
+        .current-token {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .future-token {
+            background-color: white;
+            border: 1px dashed #ccc;
+            color: transparent;
+        }
+        .noisy-token {
+            background-color: rgba(244, 67, 54, 0.1);
+            color: #888;
+        }
+        .partially-refined {
+            background-color: rgba(255, 152, 0, 0.2);
+            color: #666;
+        }
+        .refined-token {
+            background-color: rgba(76, 175, 80, 0.2);
+            color: #333;
+        }
+        .final-token {
+            background-color: rgba(76, 175, 80, 0.4);
+            color: #000;
+        }
+        .central-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0 30px 0;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        button:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+        .progress-bar {
+            height: 5px;
+            background-color: #ecf0f1;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        .progress {
+            height: 100%;
+            background-color: #3498db;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+        }
+        .comparison-table th, .comparison-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        .comparison-table th {
+            background-color: #3498db;
+            color: white;
+        }
+        .comparison-table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            margin-right: 5px;
+            border-radius: 3px;
+        }
+        .completion-time {
+            text-align: center;
+            font-weight: bold;
+            margin-top: 10px;
+            height: 24px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>自己回帰型モデルと拡散型モデルの挙動比較</h1>
+        
+        <div class="central-controls">
+            <button id="start-button">両方のモデルを開始</button>
+            <button id="reset-button" disabled>リセット</button>
+        </div>
+        
+        <div class="model-container">
+            <!-- 自己回帰型モデル -->
+            <div class="model">
+                <div class="model-title">① 自己回帰型モデル (GPT, Gemini)</div>
+                <div class="model-description">
+                    左から右へ1トークンずつ順番に生成し、一度生成したトークンは固定されます。後戻りができないため、生成は一方向に進みます。
+                </div>
+                <div class="progress-bar">
+                    <div class="progress" id="autoregressive-progress"></div>
+                </div>
+                <div class="model-visualization" id="autoregressive-visualization"></div>
+                <div class="completion-time" id="autoregressive-time"></div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #4CAF50;"></div>
+                        <span>現在生成中</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: #e0e0e0;"></div>
+                        <span>生成済み（固定）</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="border: 1px dashed #ccc; background-color: white;"></div>
+                        <span>未生成</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 拡散型モデル -->
+            <div class="model">
+                <div class="model-title">② 拡散型モデル (Diffusion LLM: Mercury)</div>
+                <div class="model-description">
+                    最初にランダムなトークンで埋め、全体を同時に段階的に修正していきます。全てのトークンが並行して洗練されていく過程が特徴です。
+                </div>
+                <div class="progress-bar">
+                    <div class="progress" id="diffusion-progress"></div>
+                </div>
+                <div class="model-visualization" id="diffusion-visualization"></div>
+                <div class="completion-time" id="diffusion-time"></div>
+                <div class="legend">
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: rgba(244, 67, 54, 0.1);"></div>
+                        <span>ノイズ状態</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: rgba(255, 152, 0, 0.2);"></div>
+                        <span>部分的に洗練</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background-color: rgba(76, 175, 80, 0.4);"></div>
+                        <span>完成状態</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 比較表 -->
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>特徴</th>
+                    <th>自己回帰型モデル</th>
+                    <th>拡散型モデル</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>生成プロセス</td>
+                    <td>左から右へ順次生成</td>
+                    <td>全体を同時に段階的に洗練</td>
+                </tr>
+                <tr>
+                    <td>初期状態</td>
+                    <td>空のキャンバス（何もない状態から開始）</td>
+                    <td>ランダムなノイズ（意味のない文字列から開始）</td>
+                </tr>
+                <tr>
+                    <td>トークンの修正</td>
+                    <td>一度生成したトークンは修正不可（固定）</td>
+                    <td>全てのトークンを何度も修正可能</td>
+                </tr>
+                <tr>
+                    <td>視覚的イメージ</td>
+                    <td>「ぽつ…ぽつ…」と文字が順番に現れる</td>
+                    <td>「パタパタパタ」と全体が同時に変化する</td>
+                </tr>
+                <tr>
+                    <td>生成速度</td>
+                    <td>トークン数に比例して時間がかかる</td>
+                    <td>ステップ数が一定のため長文でも高速</td>
+                </tr>
+                <tr>
+                    <td>長所</td>
+                    <td>実装がシンプル、より少ないコンピューティングリソースで動作可能</td>
+                    <td>文脈の一貫性が高い、後方のトークンを考慮して前方を修正できる</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // 共通のUI要素
+        const startButton = document.getElementById('start-button');
+        const resetButton = document.getElementById('reset-button');
+        
+        // 自己回帰型モデルのデモ
+        const autoregressiveViz = document.getElementById('autoregressive-visualization');
+        const autoregressiveProgress = document.getElementById('autoregressive-progress');
+        const autoregressiveTime = document.getElementById('autoregressive-time');
+        
+        // 拡散型モデルのデモ
+        const diffusionViz = document.getElementById('diffusion-visualization');
+        const diffusionProgress = document.getElementById('diffusion-progress');
+        const diffusionTime = document.getElementById('diffusion-time');
+        
+        // サンプルテキスト（長めの文章）
+        const finalText = "人工知能の発展は私たちの生活を大きく変えていくでしょう。言語モデルはその一部であり、自然な文章生成や翻訳など様々なタスクで活用されています。最新の技術では自己回帰型と拡散型の二つのアプローチがあり、それぞれ特徴が異なります。モデルの特性を理解することで、より効果的に活用することができます。";
+        const finalTokens = finalText.split('');
+        
+        // ランダムな文字を生成する関数
+        function getRandomChar() {
+            const chars = "あいうえおかきくけこさしすせそたちつてとなにぬねのはひふへほまみむめもやゆよらりるれろわをん。、！？アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン";
+            return chars[Math.floor(Math.random() * chars.length)];
+        }
+        
+        // タイミング変数
+        let startTime;
+        let autoregressiveEndTime;
+        let diffusionEndTime;
+        
+        // 自己回帰型モデルの変数
+        let autoregressiveTokens = [];
+        let autoregressiveInterval;
+        let autoregressiveIndex = 0;
+        
+        // 拡散型モデルの変数
+        let diffusionTokens = [];
+        let diffusionInterval;
+        let diffusionStep = 0;
+        const totalDiffusionSteps = 4;  // 少ないステップ数で完了するように
+        
+        // 自己回帰型モデルの初期化
+        function initAutoregressive() {
+            autoregressiveViz.innerHTML = '';
+            autoregressiveTokens = [];
+            autoregressiveIndex = 0;
+            autoregressiveTime.textContent = '';
+            
+            // 未生成トークンのプレースホルダーを作成
+            for (let i = 0; i < finalTokens.length; i++) {
+                const tokenSpan = document.createElement('span');
+                tokenSpan.className = 'token future-token';
+                tokenSpan.textContent = '_';
+                autoregressiveViz.appendChild(tokenSpan);
+                autoregressiveTokens.push(tokenSpan);
+            }
+            
+            autoregressiveProgress.style.width = '0%';
+        }
+        
+        // 拡散型モデルの初期化
+        function initDiffusion() {
+            diffusionViz.innerHTML = '';
+            diffusionTokens = [];
+            diffusionStep = 0;
+            diffusionTime.textContent = '';
+            
+            // ランダムなノイズを生成
+            for (let i = 0; i < finalTokens.length; i++) {
+                const tokenSpan = document.createElement('span');
+                tokenSpan.className = 'token noisy-token';
+                tokenSpan.textContent = getRandomChar();
+                diffusionViz.appendChild(tokenSpan);
+                diffusionTokens.push(tokenSpan);
+            }
+            
+            diffusionProgress.style.width = '0%';
+        }
+        
+        // 両方のモデルを同時に開始
+        function startBothModels() {
+            startButton.disabled = true;
+            resetButton.disabled = false;
+            startTime = Date.now();
+            
+            // 自己回帰型モデルの開始（遅め）
+            autoregressiveInterval = setInterval(() => {
+                if (autoregressiveIndex < finalTokens.length) {
+                    // 前のトークンを固定状態に
+                    if (autoregressiveIndex > 0) {
+                        autoregressiveTokens[autoregressiveIndex - 1].className = 'token fixed-token';
+                    }
+                    
+                    // 現在のトークンを表示
+                    autoregressiveTokens[autoregressiveIndex].className = 'token current-token';
+                    autoregressiveTokens[autoregressiveIndex].textContent = finalTokens[autoregressiveIndex];
+                    
+                    // プログレスバーを更新
+                    const progress = ((autoregressiveIndex + 1) / finalTokens.length) * 100;
+                    autoregressiveProgress.style.width = `${progress}%`;
+                    
+                    autoregressiveIndex++;
+                } else {
+                    // 最後のトークンを固定に
+                    autoregressiveTokens[autoregressiveIndex - 1].className = 'token fixed-token';
+                    clearInterval(autoregressiveInterval);
+                    
+                    // 完了時間を記録
+                    autoregressiveEndTime = Date.now();
+                    const timeTaken = (autoregressiveEndTime - startTime) / 1000;
+                    autoregressiveTime.textContent = `完了時間: ${timeTaken.toFixed(2)}秒`;
+                    
+                    // 両方完了したかチェック
+                    checkBothCompleted();
+                }
+            }, 150);  // 遅めのスピード
+            
+            // 拡散型モデルの開始（早め）
+            diffusionInterval = setInterval(() => {
+                if (diffusionStep < totalDiffusionSteps) {
+                    // 全てのトークンを同時に更新
+                    for (let i = 0; i < finalTokens.length; i++) {
+                        const similarity = diffusionStep / totalDiffusionSteps;
+                        const randomThreshold = Math.random();
+                        
+                        // 確率的に正しいトークンに近づける
+                        if (randomThreshold < similarity) {
+                            diffusionTokens[i].textContent = finalTokens[i];
+                            diffusionTokens[i].className = 'token refined-token';
+                        } else {
+                            // まだノイズが残っている場合
+                            if (diffusionStep > 0) {
+                                diffusionTokens[i].className = 'token partially-refined';
+                            }
+                            
+                            // 一部をランダムに変更（徐々に減少）
+                            if (Math.random() > similarity * 2) {
+                                diffusionTokens[i].textContent = getRandomChar();
+                            }
+                        }
+                    }
+                    
+                    // プログレスバーを更新
+                    const progress = ((diffusionStep + 1) / totalDiffusionSteps) * 100;
+                    diffusionProgress.style.width = `${progress}%`;
+                    
+                    diffusionStep++;
+                } else {
+                    // 最終ステップ - 全てのトークンを正しいものに
+                    for (let i = 0; i < finalTokens.length; i++) {
+                        diffusionTokens[i].textContent = finalTokens[i];
+                        diffusionTokens[i].className = 'token final-token';
+                    }
+                    clearInterval(diffusionInterval);
+                    
+                    // 完了時間を記録
+                    diffusionEndTime = Date.now();
+                    const timeTaken = (diffusionEndTime - startTime) / 1000;
+                    diffusionTime.textContent = `完了時間: ${timeTaken.toFixed(2)}秒`;
+                    
+                    // 両方完了したかチェック
+                    checkBothCompleted();
+                }
+            }, 400);  // 早めのスピード（ステップ数も少ないため、全体としては圧倒的に早く終わる）
+        }
+        
+        // 両方のモデルが完了したかチェック
+        function checkBothCompleted() {
+            if (autoregressiveEndTime && diffusionEndTime) {
+                // 完了時の比較メッセージを表示する場合はここに追加
+            }
+        }
+        
+        // 両方のモデルをリセット
+        function resetBothModels() {
+            clearInterval(autoregressiveInterval);
+            clearInterval(diffusionInterval);
+            initAutoregressive();
+            initDiffusion();
+            startButton.disabled = false;
+            resetButton.disabled = true;
+            autoregressiveEndTime = null;
+            diffusionEndTime = null;
+        }
+        
+        // イベントリスナー
+        startButton.addEventListener('click', startBothModels);
+        resetButton.addEventListener('click', resetBothModels);
+        
+        // 初期化
+        initAutoregressive();
+        initDiffusion();
+    </script>
+</body>
+</html>
