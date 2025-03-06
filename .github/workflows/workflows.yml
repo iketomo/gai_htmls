@@ -25,5 +25,11 @@ jobs:
         with:
           path: '.' # 生成されたフォルダをアップロード
 
+  deploy:
+    runs-on: ubuntu-latest
+    needs: pages-directory-listing
+    environment:
+      name: github-pages # 必須項目
+    steps:
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4.0.0
