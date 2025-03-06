@@ -2,7 +2,7 @@ import os
 from datetime import datetime
 
 # 除外するファイルやディレクトリ
-EXCLUDE_FILES = {"update_readme.py", ".git", "README.md"}
+EXCLUDE_FILES = {"update_readme.py", ".git", ".github", "README.md"}
 
 # README.mdの内容を生成
 content = """
