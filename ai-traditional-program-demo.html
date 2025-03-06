@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>生成AIと従来型プログラムの組み合わせデモ</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+        .process-flow {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            padding: 10px;
+            position: relative;
+        }
+        .process-box {
+            width: 18%;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        .user-input {
+            background-color: #f8f0e3;
+        }
+        .ai-box {
+            background-color: #e3f0f8;
+        }
+        .traditional-box {
+            background-color: #e3f8e3;
+        }
+        .arrow {
+            position: absolute;
+            top: 50%;
+            right: -10%;
+            transform: translateY(-50%);
+            font-size: 24px;
+            color: #666;
+        }
+        .last-box .arrow {
+            display: none;
+        }
+        .input-area {
+            margin-bottom: 20px;
+        }
+        .textarea {
+            width: 100%;
+            height: 100px;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            resize: none;
+        }
+        .button {
+            display: block;
+            width: 200px;
+            margin: 0 auto;
+            padding: 12px;
+            background-color: #4a86e8;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #3a76d8;
+        }
+        .button:disabled {
+            background-color: #cccccc;
+            cursor: not-allowed;
+        }
+        .result-area {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            min-height: 100px;
+            display: none;
+        }
+        .step {
+            display: flex;
+            margin-bottom: 15px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .step-number {
+            flex: 0 0 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            color: white;
+        }
+        #step1 .step-number {
+            background-color: #f8f0e3;
+            color: #333;
+        }
+        #step2 .step-number {
+            background-color: #e3f0f8;
+            color: #333;
+        }
+        #step3 .step-number {
+            background-color: #e3f8e3;
+            color: #333;
+        }
+        #step4 .step-number {
+            background-color: #e3f0f8;
+            color: #333;
+        }
+        #step5 .step-number {
+            background-color: #e3f8e3;
+            color: #333;
+        }
+        .step-content {
+            flex: 1;
+            padding: 10px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        #step2 .step-content, #step4 .step-content {
+            background-color: #e3f0f8;
+        }
+        #step3 .step-content, #step5 .step-content {
+            background-color: #e3f8e3;
+        }
+        .highlight {
+            animation: pulse 1s;
+        }
+        .active-step {
+            opacity: 1;
+        }
+        .legend {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 0 10px;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            margin-right: 5px;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <h1><span style="display: inline-block; width: 30px; height: 30px; border-radius: 50%; background-color: #666; color: white; text-align: center; line-height: 30px; margin-right: 10px;">⑥</span>生成AIと従来型プログラムの組み合わせプロセスデモ</h1>
+    
+    <div class="legend">
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #f8f0e3;"></div>
+            <span>ユーザー</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #e3f0f8;"></div>
+            <span>生成AI</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #e3f8e3;"></div>
+            <span>従来型プログラム</span>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="process-flow">
+            <div class="process-box user-input" id="box1">
+                ユーザー質問
+                <div class="arrow">→</div>
+            </div>
+            <div class="process-box ai-box" id="box2">
+                質問パターン認定
+                <div class="arrow">→</div>
+            </div>
+            <div class="process-box traditional-box" id="box3">
+                パターン別の定型処理
+                <div class="arrow">→</div>
+            </div>
+            <div class="process-box ai-box" id="box4">
+                回答文章を作成
+                <div class="arrow">→</div>
+            </div>
+            <div class="process-box traditional-box last-box" id="box5">
+                ルールベースチェック
+            </div>
+        </div>
+        
+        <div class="input-area">
+            <textarea class="textarea" id="user-input" placeholder="ここに質問を入力してください。例：「旅行保険について教えてください。」「クレジットカードの支払い方法を変更したいです。」">クレジットカードの支払い方法を変更したいです。</textarea>
+            <button class="button" id="process-button">プロセスを実行</button>
+        </div>
+        
+        <div class="result-area" id="result-area" style="display: none;">
+            <div class="step" id="step1">
+                <div class="step-number">1</div>
+                <div class="step-content" id="step1-content">
+                    <strong>ユーザー質問の受付</strong>
+                    <p id="user-question">クレジットカードの支払い方法を変更したいです。</p>
+                </div>
+            </div>
+            
+            <div class="step" id="step2">
+                <div class="step-number">2</div>
+                <div class="step-content" id="step2-content">
+                    <strong>生成AIによる質問パターン認識</strong>
+                    <p>生成AIがユーザーの質問を分析し、特定のパターンに分類しています...</p>
+                    <p id="pattern-result">識別されたパターン: カードサービスに関する質問</p>
+                </div>
+            </div>
+            
+            <div class="step" id="step3">
+                <div class="step-number">3</div>
+                <div class="step-content" id="step3-content">
+                    <strong>パターン別の定型処理</strong>
+                    <p>認識されたパターンに基づいて、関連データベースから情報を取得しています...</p>
+                    <p id="data-result">カード決済システムからの情報取得: 支払い方法、明細書情報、ポイントプログラム</p>
+                </div>
+            </div>
+            
+            <div class="step" id="step4">
+                <div class="step-number">4</div>
+                <div class="step-content" id="step4-content">
+                    <strong>生成AIによる回答生成</strong>
+                    <p>取得したデータと質問内容を基に、カスタマイズされた回答を生成しています...</p>
+                    <p id="ai-response">クレジットカードのお支払い方法は、一括払い、分割払い、リボ払いがございます。お支払い方法の変更はオンラインバンキングまたはお電話でも承っております。お客様のカード番号と本人確認が必要となります。</p>
+                </div>
+            </div>
+            
+            <div class="step" id="step5">
+                <div class="step-number">5</div>
+                <div class="step-content" id="step5-content">
+                    <strong>ルールベースチェック</strong>
+                    <p>生成された回答が会社のポリシーや法的要件を満たしているか確認しています...</p>
+                    <p id="check-result">チェック完了: セキュリティポリシーに準拠、個人情報保護ガイドラインを満たす説明</p>
+                </div>
+            </div>
+            
+            <div class="step" id="step6" style="margin-top: 30px; border-top: 1px dashed #ccc; padding-top: 20px;">
+                <div class="step-number" style="background-color: #666; color: white;">6</div>
+                <div class="step-content" style="background-color: #f5f5f5;">
+                    <strong>最終回答</strong>
+                    <p style="padding: 15px; background-color: #fff; border-left: 4px solid #4a86e8; margin-top: 10px;">
+                        こんにちは！クレジットカードのお支払い方法の変更についてご案内いたします。<br><br>
+                        当社のクレジットカードでは、一括払い、分割払い、リボ払いの3種類のお支払い方法をご用意しております。お支払い方法の変更は、以下の方法で簡単に行っていただけます：<br><br>
+                        <strong>1. オンラインバンキング</strong>：当社WEBサイトにログイン後、「お支払い設定」から変更いただけます。<br>
+                        <strong>2. 電話</strong>：カスタマーサポート（0120-XXX-XXX）までお電話いただければ、オペレーターがご案内いたします。<br><br>
+                        お手続きの際には、セキュリティ確保のため、お客様のカード番号と本人確認が必要となりますので、あらかじめご了承ください。<br><br>
+                        その他ご不明点がございましたら、お気軽にお問い合わせください。
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // パターンと対応するレスポンスデータを定義
+        const patterns = {
+            '保険': {
+                pattern: '保険に関する質問',
+                data: '保険商品データベースからの情報取得: 旅行保険、生命保険、自動車保険のデータ',
+                response: '当社では様々な保険商品をご用意しております。旅行保険は海外旅行中の医療費や盗難などをカバーし、国内旅行保険もございます。ご希望の保険の詳細についてお知らせください。',
+                check: 'チェック完了: 金融商品販売法に準拠した情報提供、誤解を招く表現なし'
+            },
+            'カード': {
+                pattern: 'カードサービスに関する質問',
+                data: 'カード決済システムからの情報取得: 支払い方法、明細書情報、ポイントプログラム',
+                response: 'クレジットカードのお支払い方法は、一括払い、分割払い、リボ払いがございます。お支払い方法の変更はオンラインバンキングまたはお電話でも承っております。お客様のカード番号と本人確認が必要となります。',
+                check: 'チェック完了: セキュリティポリシーに準拠、個人情報保護ガイドラインを満たす説明'
+            },
+            '返品': {
+                pattern: '返品・交換に関する質問',
+                data: '返品ポリシーデータベースからの情報取得: 返品期限、条件、手続き方法',
+                response: '商品の返品は購入日から14日以内であれば承っております。未使用・未開封の状態で、購入時のレシートをご提示ください。食品や一部のセール商品は返品対象外となります。',
+                check: 'チェック完了: 特定商取引法に準拠した説明、例外事項の明示あり'
+            }
+        };
+
+        // デフォルトのパターン（パターン認識できない場合）
+        const defaultPattern = {
+            pattern: '一般的な問い合わせ',
+            data: '一般FAQデータベースからの情報取得',
+            response: 'ご質問ありがとうございます。より詳細な情報をお知りになりたい場合は、具体的なお問い合わせ内容をお知らせいただくか、カスタマーサポート（0120-XXX-XXX）までお電話ください。',
+            check: 'チェック完了: 標準的な応対ガイドラインに準拠'
+        };
+
+        // ボタンクリック時の処理
+        document.getElementById('process-button').addEventListener('click', function() {
+            const userInput = document.getElementById('user-input').value.trim();
+            if (!userInput) {
+                alert('質問を入力してください');
+                return;
+            }
+            
+            // 結果エリアを表示
+            document.getElementById('result-area').style.display = 'block';
+            
+            // ステップをリセット
+            document.querySelectorAll('.step').forEach(step => {
+                step.classList.remove('active-step');
+            });
+            
+            // ステップ1: ユーザー質問
+            document.getElementById('user-question').textContent = userInput;
+            highlightBox('box1');
+            document.getElementById('step1').classList.add('active-step');
+            
+            // パターン判定
+            let matchedPattern = defaultPattern;
+            for (const key in patterns) {
+                if (userInput.includes(key)) {
+                    matchedPattern = patterns[key];
+                    break;
+                }
+            }
+            
+            // ステップごとに順番に表示
+            setTimeout(() => {
+                // ステップ2: 質問パターン認識
+                document.getElementById('pattern-result').textContent = `識別されたパターン: ${matchedPattern.pattern}`;
+                highlightBox('box2');
+                document.getElementById('step2').classList.add('active-step');
+                
+                setTimeout(() => {
+                    // ステップ3: パターン別の定型処理
+                    document.getElementById('data-result').textContent = matchedPattern.data;
+                    highlightBox('box3');
+                    document.getElementById('step3').classList.add('active-step');
+                    
+                    setTimeout(() => {
+                        // ステップ4: 回答生成
+                        document.getElementById('ai-response').textContent = matchedPattern.response;
+                        highlightBox('box4');
+                        document.getElementById('step4').classList.add('active-step');
+                        
+                        setTimeout(() => {
+                            // ステップ5: ルールベースチェック
+                            document.getElementById('check-result').textContent = matchedPattern.check;
+                            highlightBox('box5');
+                            document.getElementById('step5').classList.add('active-step');
+                            
+                            setTimeout(() => {
+                                // ステップ6: 最終回答
+                                document.getElementById('step6').classList.add('active-step');
+                            }, 1000);
+                        }, 1000);
+                    }, 1000);
+                }, 1000);
+            }, 1000);
+        });
+        
+        // ボックスをハイライト表示する関数
+        function highlightBox(boxId) {
+            // すべてのボックスからハイライトを削除
+            document.querySelectorAll('.process-box').forEach(box => {
+                box.classList.remove('highlight');
+            });
+            
+            // 指定したボックスをハイライト
+            const box = document.getElementById(boxId);
+            box.classList.add('highlight');
+        }
+    </script>
+</body>
+</html>
