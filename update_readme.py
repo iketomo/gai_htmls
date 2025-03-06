@@ -16,7 +16,10 @@ content = """
 files_with_dates = []
 for file in os.listdir("."):
     if file not in EXCLUDE_FILES:
-        created_time = os.path.getctime(file)
+        # ファイルのステータス情報を取得
+        stat_info = os.stat(file)
+        # 作成日時を取得（Windowsの場合はst_ctime）
+        created_time = stat_info.st_ctime
         files_with_dates.append((file, created_time))
 
 # 作成日でソート（降順）
