@@ -6,7 +6,9 @@ on:
       - main
 
 permissions:
-  contents: write # README.mdを書き換えるために必要な権限
+  contents: write # リポジトリへの書き込み権限
+  pages: write    # GitHub Pagesへのデプロイ権限
+  id-token: write # IDトークンの作成権限（デプロイ時に必要）
 
 jobs:
   update-readme:
