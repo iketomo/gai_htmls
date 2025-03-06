@@ -8,10 +8,14 @@ content = """
 
 """
 
-# ディレクトリ内のファイル一覧を取得
+# ファイル一覧を取得
 files = os.listdir(".")
 for file in files:
-    content += f"- {file}\n"
+    # HTMLファイルの場合はリンク形式にする
+    if file.endswith(".html"):
+        content += f"- [{file}](./{file})\n"
+    else:
+        content += f"- {file}\n"
 
 # README.mdを書き換え
 with open("README.md", "w") as readme_file:
