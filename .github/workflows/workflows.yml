@@ -1,33 +1,40 @@
-name: directory-listing
+name: update-readme-and-deploy
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
 
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write # README.mdを書き換えるために必要な権限
 
 jobs:
-  pages-directory-listing:
+  update-readme:
     runs-on: ubuntu-latest
-    name: Directory Listings Index
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Generate Directory Listings
-        uses: jayanta525/github-pages-directory-listing@v4.0.0
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          FOLDER: . # インデックスを生成するディレクトリ
+          python-version: "3.x"
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3.0.1
-        with:
-          path: '.' # 生成されたフォルダをアップロード
+      - name: Update README.md
+        run: |
+          python update_readme.py
+
+      - name: Commit changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git commit -m "Update README.md automatically"
+          git push origin main
 
   deploy:
     runs-on: ubuntu-latest
-    needs: pages-directory-listing
+    needs: update-readme # update-readmeジョブが完了した後に実行されるよう設定
     environment:
       name: github-pages # 必須項目
     steps:
