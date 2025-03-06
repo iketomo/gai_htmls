@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>テスト時スケーリング手法の比較</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f7fa;
+        }
+        
+        h1, h2, h3 {
+            color: #2c3e50;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        
+        .methods-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        
+        .method-box {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: calc(100% - 40px);
+            margin-bottom: 20px;
+            position: relative;
+            border-top: 5px solid;
+        }
+        
+        .method-box h2 {
+            margin-top: 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .method-box h2 .method-number {
+            background-color: #3498db;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 10px;
+            font-size: 16px;
+        }
+        
+        .method-box.budget {
+            border-top-color: #3498db;
+        }
+        
+        .method-box.step {
+            border-top-color: #e74c3c;
+        }
+        
+        .method-box.rejection {
+            border-top-color: #2ecc71;
+        }
+        
+        .visualization {
+            background: #f9f9f9;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+        
+        .token-stream {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+        
+        .token {
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 14px;
+            display: inline-block;
+            white-space: nowrap;
+        }
+        
+        .token.thinking {
+            background-color: #d6eaf8;
+            color: #2980b9;
+        }
+        
+        .token.forced-end {
+            background-color: #f8c471;
+            color: #e67e22;
+            font-weight: bold;
+        }
+        
+        .token.answer {
+            background-color: #d5f5e3;
+            color: #27ae60;
+        }
+        
+        .token.wait {
+            background-color: #fadbd8;
+            color: #c0392b;
+            font-weight: bold;
+        }
+        
+        .token.step-count {
+            background-color: #e8daef;
+            color: #8e44ad;
+            font-weight: bold;
+        }
+        
+        .comparison-chart {
+            height: 200px;
+            margin: 20px 0;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            gap: 30px;
+        }
+        
+        .chart-bar {
+            width: 80px;
+            background-color: #3498db;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            border-radius: 5px 5px 0 0;
+            position: relative;
+        }
+        
+        .chart-bar.long {
+            background-color: #e74c3c;
+        }
+        
+        .chart-bar.rejected {
+            background-color: #95a5a6;
+            opacity: 0.5;
+        }
+        
+        .chart-bar.accepted {
+            background-color: #2ecc71;
+        }
+        
+        .chart-label {
+            position: absolute;
+            bottom: -30px;
+            text-align: center;
+            color: #333;
+            font-size: 14px;
+            width: 100%;
+        }
+        
+        .advantages-disadvantages {
+            margin-top: 20px;
+        }
+        
+        .adv-list, .disadv-list {
+            padding-left: 20px;
+        }
+        
+        .adv-list li {
+            position: relative;
+            padding-left: 5px;
+            margin-bottom: 5px;
+            list-style-type: none;
+        }
+        
+        .adv-list li::before {
+            content: '✓';
+            color: #27ae60;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        
+        .disadv-list li {
+            position: relative;
+            padding-left: 5px;
+            margin-bottom: 5px;
+            list-style-type: none;
+        }
+        
+        .disadv-list li::before {
+            content: '✗';
+            color: #e74c3c;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        
+        .animation-container {
+            position: relative;
+            height: 150px;
+            width: 100%;
+            overflow: hidden;
+            background: #f0f0f0;
+            border-radius: 6px;
+            margin: 15px 0;
+        }
+        
+        #animation1, #animation2, #animation3 {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        
+        .thinking-block {
+            position: absolute;
+            height: 30px;
+            background-color: #3498db;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 1s ease;
+        }
+        
+        .answer-block {
+            position: absolute;
+            height: 30px;
+            background-color: #2ecc71;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: all 1s ease;
+        }
+        
+        .wait-indicator {
+            position: absolute;
+            padding: 5px 10px;
+            background-color: #e74c3c;
+            color: white;
+            border-radius: 4px;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .step-indicator {
+            position: absolute;
+            padding: 5px 10px;
+            background-color: #8e44ad;
+            color: white;
+            border-radius: 4px;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .scissor {
+            position: absolute;
+            font-size: 24px;
+            color: #e74c3c;
+            opacity: 0;
+            transform: rotate(-90deg);
+            transition: all 0.5s ease;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+    </style>
+</head>
+<body>
+    <h1>テスト時のスケーリング手法の比較</h1>
+    
+    <div class="methods-container">
+        <!-- 予算強制 (Budget Forcing) -->
+        <div class="method-box budget">
+            <h2><span class="method-number">1</span>予算強制（Budget Forcing）</h2>
+            <p>モデルが思考に費やすトークン数に上限または下限を強制的に設け、テスト時の計算量を制御する手法です。</p>
+            
+            <h3>上限の強制（思考の切り捨て）</h3>
+            <div class="visualization">
+                <div class="token-stream">
+                    <span class="token thinking">思考トークン1</span>
+                    <span class="token thinking">思考トークン2</span>
+                    <span class="token thinking">思考トークン3</span>
+                    <span class="token thinking">...</span>
+                    <span class="token forced-end">[END-OF-THINKING]</span>
+                    <span class="token answer">Final Answer:</span>
+                    <span class="token answer">回答トークン</span>
+                </div>
+                <div class="animation-container">
+                    <div id="animation1">
+                        <div class="thinking-block" id="thinking-block-1"></div>
+                        <div class="answer-block" id="answer-block-1"></div>
+                        <div class="scissor" id="scissor-1">✂️</div>
+                    </div>
+                </div>
+                <p><strong>思考トークン数の上限</strong>に達した場合、強制的に思考プロセスを終了させ、回答モードへ移行します。</p>
+            </div>
+            
+            <h3>下限の強制（思考の延長）</h3>
+            <div class="visualization">
+                <div class="token-stream">
+                    <span class="token thinking">思考トークン1</span>
+                    <span class="token thinking">思考トークン2</span>
+                    <span class="token wait">Wait</span>
+                    <span class="token thinking">思考トークン3</span>
+                    <span class="token thinking">...</span>
+                    <span class="token forced-end">[END-OF-THINKING]</span>
+                    <span class="token answer">Final Answer:</span>
+                    <span class="token answer">回答トークン</span>
+                </div>
+                <div class="animation-container">
+                    <div id="animation2">
+                        <div class="thinking-block" id="thinking-block-2"></div>
+                        <div class="wait-indicator" id="wait-indicator-2">Wait</div>
+                        <div class="answer-block" id="answer-block-2"></div>
+                    </div>
+                </div>
+                <p><strong>思考トークン数の下限</strong>に達していない場合、「Wait」というトークンを挿入して思考の継続を促します。</p>
+            </div>
+            
+            <div class="advantages-disadvantages">
+                <h3>長所</h3>
+                <ul class="adv-list">
+                    <li>シンプルかつ効果的</li>
+                    <li>モデルパラメータを変更せずに実装可能</li>
+                    <li>競技数学の問題で高い性能を示した（s1-32Bモデルが、OpenAIのo1-previewモデルを上回った）</li>
+                    <li>学習時に見ていない計算量でも性能を向上させる可能性がある（性能の外挿）</li>
+                </ul>
+                
+                <h3>短所</h3>
+                <ul class="disadv-list">
+                    <li>上限設定時に有益な思考が途中で切り捨てられる可能性がある</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- 段階的なステップ数の制御 (Step-conditional Control) -->
+        <div class="method-box step">
+            <h2><span class="method-number">2</span>段階的なステップ数の制御（Step-conditional Control）</h2>
+            <p>プロンプト内でモデルに対して思考のステップ数を明示的に指示し、思考プロセスを構造化する手法です。</p>
+            
+            <div class="visualization">
+                <div class="token-stream">
+                    <span class="token step-count">残り3ステップ</span>
+                    <span class="token thinking">思考トークン1</span>
+                    <span class="token step-count">残り2ステップ</span>
+                    <span class="token thinking">思考トークン2</span>
+                    <span class="token step-count">残り1ステップ</span>
+                    <span class="token thinking">思考トークン3</span>
+                    <span class="token step-count">残り0ステップ</span>
+                    <span class="token forced-end">[END-OF-THINKING]</span>
+                    <span class="token answer">Final Answer:</span>
+                    <span class="token answer">回答トークン</span>
+                </div>
+                <div class="animation-container">
+                    <div id="animation3">
+                        <div class="thinking-block" id="thinking-block-3"></div>
+                        <div class="step-indicator" id="step-indicator-3">残り3ステップ</div>
+                        <div class="answer-block" id="answer-block-3"></div>
+                    </div>
+                </div>
+                <p>モデルに対して明示的なステップ数をカウントダウンで提示し、0になった時点で思考を終了させます。</p>
+            </div>
+            
+            <div class="advantages-disadvantages">
+                <h3>長所</h3>
+                <ul class="adv-list">
+                    <li>思考プロセスの構造化が可能</li>
+                    <li>カウントダウン形式の方が、モデルがステップ数の制限を守りやすい</li>
+                </ul>
+                
+                <h3>短所</h3>
+                <ul class="disadv-list">
+                    <li>モデルが指示されたステップ数を完全に遵守することは難しい</li>
+                    <li>ステップ数を少なく設定すると、各ステップあたりのトークン数が増える傾向がある</li>
+                    <li>他の手法と比較して、より多くのトークンを消費する可能性がある</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- リジェクションサンプリング (Rejection Sampling) -->
+        <div class="method-box rejection">
+            <h2><span class="method-number">3</span>リジェクションサンプリング（Rejection Sampling）</h2>
+            <p>生成された思考トレースがあらかじめ定義された特定の長さの条件を満たすまで、モデルによる生成を繰り返す手法です。</p>
+            
+            <div class="visualization">
+                <div class="comparison-chart">
+                    <div class="chart-bar rejected" style="height: 90px;">
+                        <span>拒否</span>
+                        <span class="chart-label">2000トークン<br>（短すぎる）</span>
+                    </div>
+                    <div class="chart-bar accepted" style="height: 140px;">
+                        <span>採用</span>
+                        <span class="chart-label">3500トークン<br>（条件内）</span>
+                    </div>
+                    <div class="chart-bar long rejected" style="height: 180px;">
+                        <span>拒否</span>
+                        <span class="chart-label">5000トークン<br>（長すぎる）</span>
+                    </div>
+                </div>
+                <p>定義された条件（例：3000〜4000トークン）を満たす思考トレースが得られるまでサンプリングを繰り返します。</p>
+            </div>
+            
+            <div class="advantages-disadvantages">
+                <h3>長所</h3>
+                <ul class="adv-list">
+                    <li>特定の長さの思考トレースを得ることができる</li>
+                </ul>
+                
+                <h3>短所</h3>
+                <ul class="disadv-list">
+                    <li>単純に長い思考トレースを求めると、誤った推論を含む生成が増える可能性がある</li>
+                    <li>AIME24の一部問題では、思考トークン数の上限を低く設定した方が正答率が高くなる「逆のスケーリング」が観察された</li>
+                    <li>複数回のサンプリングが必要なため、計算コストが高い</li>
+                </ul>
+            </div>
+            
+            <div class="visualization">
+                <p><strong>論文の仮説：</strong></p>
+                <p>短い思考トレース → モデルが最初から正しい方向に進んでいる場合に生成される</p>
+                <p>長い思考トレース → 途中で間違いを犯したり、バックトラックしたりする結果として生成される</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>参考文献: Simple test-time scaling</p>
+    </div>
+    
+    <script>
+        // Animation for Budget Forcing - Upper Limit
+        function animateBudgetUpper() {
+            const thinkingBlock = document.getElementById('thinking-block-1');
+            const answerBlock = document.getElementById('answer-block-1');
+            const scissor = document.getElementById('scissor-1');
+            
+            // Initial state
+            thinkingBlock.style.width = '20%';
+            thinkingBlock.style.left = '10%';
+            thinkingBlock.style.top = '30px';
+            thinkingBlock.textContent = '思考プロセス';
+            
+            answerBlock.style.width = '0%';
+            answerBlock.style.left = '30%';
+            answerBlock.style.top = '30px';
+            answerBlock.textContent = '';
+            
+            scissor.style.left = '30%';
+            scissor.style.top = '50px';
+            scissor.style.opacity = '0';
+            
+            // Animation sequence
+            setTimeout(() => {
+                thinkingBlock.style.width = '60%';
+            }, 1000);
+            
+            setTimeout(() => {
+                scissor.style.opacity = '1';
+            }, 2000);
+            
+            setTimeout(() => {
+                thinkingBlock.style.width = '20%';
+                answerBlock.style.left = '31%';
+                answerBlock.style.width = '25%';
+                answerBlock.textContent = '回答';
+                scissor.style.opacity = '0';
+            }, 3000);
+            
+            setTimeout(() => {
+                animateBudgetUpper();
+            }, 5000);
+        }
+        
+        // Animation for Budget Forcing - Lower Limit
+        function animateBudgetLower() {
+            const thinkingBlock = document.getElementById('thinking-block-2');
+            const waitIndicator = document.getElementById('wait-indicator-2');
+            const answerBlock = document.getElementById('answer-block-2');
+            
+            // Initial state
+            thinkingBlock.style.width = '20%';
+            thinkingBlock.style.left = '10%';
+            thinkingBlock.style.top = '30px';
+            thinkingBlock.textContent = '思考プロセス';
+            
+            waitIndicator.style.left = '31%';
+            waitIndicator.style.top = '30px';
+            waitIndicator.style.opacity = '0';
+            
+            answerBlock.style.width = '0%';
+            answerBlock.style.left = '65%';
+            answerBlock.style.top = '30px';
+            answerBlock.textContent = '';
+            
+            // Animation sequence
+            setTimeout(() => {
+                thinkingBlock.style.width = '20%';
+                waitIndicator.style.opacity = '1';
+            }, 1000);
+            
+            setTimeout(() => {
+                thinkingBlock.style.width = '50%';
+                waitIndicator.style.left = '61%';
+                waitIndicator.style.opacity = '0';
+            }, 2000);
+            
+            setTimeout(() => {
+                answerBlock.style.left = '61%';
+                answerBlock.style.width = '25%';
+                answerBlock.textContent = '回答';
+            }, 3000);
+            
+            setTimeout(() => {
+                animateBudgetLower();
+            }, 5000);
+        }
+        
+        // Animation for Step-conditional Control
+        function animateStepControl() {
+            const thinkingBlock = document.getElementById('thinking-block-3');
+            const stepIndicator = document.getElementById('step-indicator-3');
+            const answerBlock = document.getElementById('answer-block-3');
+            
+            // Initial state
+            thinkingBlock.style.width = '10%';
+            thinkingBlock.style.left = '10%';
+            thinkingBlock.style.top = '30px';
+            thinkingBlock.textContent = 'ステップ1';
+            
+            stepIndicator.style.left = '10%';
+            stepIndicator.style.top = '70px';
+            stepIndicator.textContent = '残り3ステップ';
+            stepIndicator.style.opacity = '1';
+            
+            answerBlock.style.width = '0%';
+            answerBlock.style.left = '70%';
+            answerBlock.style.top = '30px';
+            answerBlock.textContent = '';
+            
+            // Animation sequence
+            setTimeout(() => {
+                thinkingBlock.style.width = '20%';
+                thinkingBlock.textContent = 'ステップ1';
+                stepIndicator.style.left = '20%';
+                stepIndicator.textContent = '残り2ステップ';
+            }, 1000);
+            
+            setTimeout(() => {
+                thinkingBlock.style.width = '30%';
+                thinkingBlock.textContent = 'ステップ2';
+                stepIndicator.style.left = '30%';
+                stepIndicator.textContent = '残り1ステップ';
+            }, 2000);
+            
+            setTimeout(() => {
+                thinkingBlock.style.width = '40%';
+                thinkingBlock.textContent = 'ステップ3';
+                stepIndicator.style.left = '40%';
+                stepIndicator.textContent = '残り0ステップ';
+            }, 3000);
+            
+            setTimeout(() => {
+                answerBlock.style.left = '51%';
+                answerBlock.style.width = '25%';
+                answerBlock.textContent = '回答';
+                stepIndicator.style.opacity = '0';
+            }, 4000);
+            
+            setTimeout(() => {
+                animateStepControl();
+            }, 6000);
+        }
+        
+        // Start animations when page loads
+        window.onload = function() {
+            animateBudgetUpper();
+            animateBudgetLower();
+            animateStepControl();
+        };
+    </script>
+</body>
+</html>
