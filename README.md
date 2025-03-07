@@ -3,6 +3,8 @@
 
 このリポジトリには以下のファイルが含まれています（ファイル名順）:
 
+- [2025-03-07_development-timeline.html](./2025-03-07_development-timeline.html)
+- [2025-03-07_software-testing-building.html](./2025-03-07_software-testing-building.html)
 - [ai-productivity-comparison.html](./ai-productivity-comparison.html)
 - [ai-traditional-program-demo.html](./ai-traditional-program-demo.html)
 - [ai_agent_demo.html](./ai_agent_demo.html)
