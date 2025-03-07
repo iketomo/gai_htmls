@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIを使う人 vs 使わない人 - 生産性の差</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #121212;
+            color: white;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 2rem 0;
+            background-color: #1a1a1a;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            position: relative;
+            z-index: 10;
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(90deg, #ff4b4b, #4b6eff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 2px 10px rgba(255, 255, 255, 0.1);
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            margin-bottom: 1rem;
+        }
+        
+        .comparison {
+            display: flex;
+            flex: 1;
+            position: relative;
+        }
+        
+        .side {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .no-ai {
+            background-color: #2a2a2a;
+            border-right: 1px solid #333;
+        }
+        
+        .with-ai {
+            background-color: #1e2a4a;
+            border-left: 1px solid #333;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .ai-effects {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0.15;
+            z-index: 1;
+        }
+        
+        .ai-code-line {
+            position: absolute;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #4b6eff, transparent);
+            width: 100%;
+            animation: aiCodeScan 3s linear infinite;
+            opacity: 0;
+        }
+        
+        @keyframes aiCodeScan {
+            0% {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            10% {
+                opacity: 0.8;
+            }
+            90% {
+                opacity: 0.8;
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(500px);
+            }
+        }
+        
+        .person {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 5;
+        }
+        
+        .no-ai .person {
+            background-color: #ff4b4b;
+            box-shadow: 0 0 20px rgba(255, 75, 75, 0.3);
+        }
+        
+        .with-ai .person {
+            background-color: #4b6eff;
+            box-shadow: 0 0 20px rgba(75, 110, 255, 0.3);
+        }
+        
+        .ai-assistant {
+            position: absolute;
+            top: 80px;
+            right: 35%;
+            z-index: 10;
+        }
+        
+        .ai-icon {
+            width: 50px;
+            height: 50px;
+            background-color: #00c2ff;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.8rem;
+            box-shadow: 0 0 20px rgba(0, 194, 255, 0.5);
+            animation: aiPulse 2s infinite alternate;
+            position: relative;
+        }
+        
+        .ai-connection {
+            position: absolute;
+            top: 25px;
+            right: 50px;
+            width: 80px;
+            height: 2px;
+            background: linear-gradient(90deg, #4b6eff, #00c2ff);
+            transform-origin: right center;
+            transform: rotate(-30deg);
+        }
+        
+        .ai-connection::before,
+        .ai-connection::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: inherit;
+            opacity: 0.7;
+            animation: dataFlow 1.5s infinite linear;
+        }
+        
+        .ai-connection::after {
+            animation-delay: 0.75s;
+        }
+        
+        @keyframes aiPulse {
+            0% {
+                transform: scale(1);
+                box-shadow: 0 0 20px rgba(0, 194, 255, 0.5);
+            }
+            100% {
+                transform: scale(1.1);
+                box-shadow: 0 0 30px rgba(0, 194, 255, 0.7);
+            }
+        }
+        
+        @keyframes dataFlow {
+            0% {
+                transform: translateX(0);
+                opacity: 0;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateX(-80px);
+                opacity: 0;
+            }
+        }
+        
+        .label {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 2rem;
+            text-align: center;
+            padding: 0.5rem 1.5rem;
+            border-radius: 30px;
+            background-color: rgba(0, 0, 0, 0.3);
+        }
+        
+        .no-ai .label {
+            color: #ff4b4b;
+        }
+        
+        .with-ai .label {
+            color: #4b6eff;
+        }
+        
+        .projects-container {
+            width: 100%;
+            height: 300px;
+            position: relative;
+            margin-top: 2rem;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+        }
+        
+        .project {
+            position: absolute;
+            width: 60px;
+            height: 80px;
+            background-color: #333;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: all 0.5s ease;
+        }
+        
+        .no-ai .project {
+            border: 2px solid #ff4b4b;
+            color: #ff4b4b;
+        }
+        
+        .with-ai .project {
+            border: 2px solid #4b6eff;
+            color: #4b6eff;
+        }
+        
+        .stats {
+            margin-top: 2rem;
+            text-align: center;
+            font-size: 1.2rem;
+            background-color: rgba(0, 0, 0, 0.3);
+            padding: 1rem;
+            border-radius: 10px;
+            width: 100%;
+        }
+        
+        .counter {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 0.5rem 0;
+        }
+        
+        .no-ai .counter {
+            color: #ff4b4b;
+        }
+        
+        .with-ai .counter {
+            color: #4b6eff;
+        }
+        
+        .message-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            padding: 2rem;
+            background-color: rgba(0, 0, 0, 0.7);
+            transform: translateY(100%);
+            transition: transform 1s ease-in-out;
+            z-index: 100;
+        }
+        
+        .message {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            background: linear-gradient(90deg, #ff4b4b, #4b6eff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .details {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        .ai-tools {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            position: relative;
+            z-index: 5;
+        }
+        
+        .ai-tool {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border: 1px solid #4b6eff;
+            border-radius: 8px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.3rem;
+            box-shadow: 0 0 10px rgba(75, 110, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .ai-tool:hover, .ai-tool.active {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(75, 110, 255, 0.4);
+            background-color: rgba(75, 110, 255, 0.2);
+        }
+        
+        .ai-suggestions {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 200px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border: 1px solid #4b6eff;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 0.9rem;
+            color: #4b6eff;
+            z-index: 10;
+        }
+        
+        .suggestion {
+            margin-bottom: 8px;
+            position: relative;
+            padding-left: 20px;
+        }
+        
+        .suggestion::before {
+            content: '↻';
+            position: absolute;
+            left: 0;
+            top: 0;
+            animation: rotate 2s linear infinite;
+        }
+        
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .with-ai .project.processing {
+            background-color: rgba(0, 30, 60, 0.8) !important;
+            border-color: #00c2ff !important;
+            animation: aiProcessing 1s infinite alternate !important;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .with-ai .project.processing::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 194, 255, 0.3), transparent);
+            animation: aiScan 1s ease-in-out infinite;
+        }
+        
+        @keyframes aiProcessing {
+            0% { box-shadow: 0 0 5px rgba(0, 194, 255, 0.5); }
+            100% { box-shadow: 0 0 15px rgba(0, 194, 255, 0.8); }
+        }
+        
+        @keyframes aiScan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        @media (max-width: 768px) {
+            .comparison {
+                flex-direction: column;
+            }
+            
+            .side {
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .label {
+                font-size: 1.2rem;
+            }
+            
+            .message {
+                font-size: 1.5rem;
+            }
+            
+            .details {
+                font-size: 1rem;
+            }
+            
+            .ai-assistant {
+                right: 30%;
+            }
+            
+            .ai-tools {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>AIを使う人 vs 使わない人</h1>
+            <div class="subtitle">生産性の格差がもたらす未来</div>
+        </div>
+        
+        <div class="comparison">
+            <div class="side no-ai">
+                <div class="person">👨‍💼</div>
+                <div class="label">AIを使わない人</div>
+                <div class="projects-container" id="noAiProjects"></div>
+                <div class="stats">
+                    処理した案件数: <div class="counter" id="noAiCounter">0</div>
+                    <div id="noAiStatus">処理速度: 遅い</div>
+                </div>
+            </div>
+            
+            <div class="side with-ai">
+                <div class="ai-effects" id="aiEffects"></div>
+                <div class="person">👨‍💻</div>
+                <div class="ai-assistant">
+                    <div class="ai-icon">🤖</div>
+                    <div class="ai-connection"></div>
+                </div>
+                <div class="label">AIを使う人</div>
+                <div class="ai-tools">
+                    <div class="ai-tool">📊</div>
+                    <div class="ai-tool">🔍</div>
+                    <div class="ai-tool">📈</div>
+                    <div class="ai-tool">💬</div>
+                </div>
+                <div class="projects-container" id="withAiProjects"></div>
+                <div class="stats">
+                    処理した案件数: <div class="counter" id="withAiCounter">0</div>
+                    <div id="withAiStatus">処理速度: 高速</div>
+                </div>
+                <div class="ai-suggestions" id="aiSuggestions">
+                    <div class="suggestion">コンテンツ最適化中...</div>
+                </div>
+            </div>
+            
+            <div class="message-container" id="messageContainer">
+                <div class="message">AIを使う人が、使わない人の仕事を奪っていく</div>
+                <div class="details">
+                    これまで1人1案件だったのが、AIを活用することで1人で10案件も処理可能に。
+                    生産性の格差が広がり、9人分の仕事が1人に集約される時代がすでに始まっています。
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const noAiProjects = document.getElementById('noAiProjects');
+            const withAiProjects = document.getElementById('withAiProjects');
+            const noAiCounter = document.getElementById('noAiCounter');
+            const withAiCounter = document.getElementById('withAiCounter');
+            const noAiStatus = document.getElementById('noAiStatus');
+            const withAiStatus = document.getElementById('withAiStatus');
+            const messageContainer = document.getElementById('messageContainer');
+            
+            let noAiCount = 0;
+            let withAiCount = 0;
+            
+            // 初期案件を生成
+            const totalProjects = 20;
+            const projects = [];
+            
+            // 初期状態では半々で案件を配分
+            for (let i = 0; i < totalProjects; i++) {
+                const side = i < totalProjects / 2 ? 'no-ai' : 'with-ai';
+                createProject(side, i);
+            }
+            
+            function createProject(side, id) {
+                const project = document.createElement('div');
+                project.className = 'project';
+                project.id = `project-${side}-${id}`;
+                project.textContent = `案件 ${id + 1}`;
+                
+                // 初期位置をランダムに設定
+                const container = side === 'no-ai' ? noAiProjects : withAiProjects;
+                const containerRect = container.getBoundingClientRect();
+                
+                const x = Math.random() * (containerRect.width - 70);
+                const y = Math.random() * (containerRect.height - 90);
+                
+                project.style.left = `${x}px`;
+                project.style.top = `${y}px`;
+                
+                container.appendChild(project);
+                
+                projects.push({
+                    element: project,
+                    side: side,
+                    id: id,
+                    inProgress: false,
+                    completed: false
+                });
+            }
+            
+            // AIエフェクト生成
+            createAiEffects();
+            
+            // アニメーション開始
+            setTimeout(startSimulation, 1000);
+            
+            function startSimulation() {
+                // AIを使わない人のアニメーション
+                setInterval(() => {
+                    processNoAiProject();
+                }, 6000); // 6秒ごとに1案件処理
+                
+                // AIを使う人のアニメーション
+                setInterval(() => {
+                    processWithAiProject();
+                }, 1200); // 1.2秒ごとに1案件処理
+                
+                // 仕事の移動を開始
+                setTimeout(startProjectMigration, 15000); // 15秒後に仕事の移動を開始
+                
+                // 最終メッセージを表示
+                setTimeout(showFinalMessage, 30000); // 30秒後に最終メッセージを表示
+            }
+            
+            function processNoAiProject() {
+                const availableProjects = projects.filter(p => 
+                    p.side === 'no-ai' && !p.inProgress && !p.completed
+                );
+                
+                if (availableProjects.length === 0) {
+                    noAiStatus.textContent = '処理速度: 遅い ⚠️ 仕事がなくなりつつある';
+                    return;
+                }
+                
+                const project = availableProjects[0];
+                project.inProgress = true;
+                
+                const element = project.element;
+                element.style.backgroundColor = '#500';
+                element.style.transform = 'scale(1.1)';
+                
+                // 3秒かけて処理
+                setTimeout(() => {
+                    element.style.opacity = '0.3';
+                    element.style.transform = 'scale(0.9)';
+                    project.completed = true;
+                    project.inProgress = false;
+                    
+                    noAiCount++;
+                    noAiCounter.textContent = noAiCount;
+                }, 3000);
+            }
+            
+            // AIエフェクトを生成
+            function createAiEffects() {
+                const aiEffects = document.getElementById('aiEffects');
+                
+                // スキャンライン効果
+                for (let i = 0; i < 5; i++) {
+                    const aiCodeLine = document.createElement('div');
+                    aiCodeLine.className = 'ai-code-line';
+                    aiCodeLine.style.animationDelay = `${i * 0.6}s`;
+                    aiEffects.appendChild(aiCodeLine);
+                }
+                
+                // AIツールのアクティブ化
+                const aiTools = document.querySelectorAll('.ai-tool');
+                setInterval(() => {
+                    const randomIndex = Math.floor(Math.random() * aiTools.length);
+                    aiTools.forEach(tool => tool.classList.remove('active'));
+                    aiTools[randomIndex].classList.add('active');
+                }, 2000);
+                
+                // AIの提案を更新
+                const suggestions = [
+                    "SEO分析中...",
+                    "キーワード最適化...",
+                    "コンテンツ生成中...",
+                    "データ分析実行中...",
+                    "ターゲット層分析中...",
+                    "トレンド予測計算中...",
+                    "競合分析実行中...",
+                    "パフォーマンス向上策提案...",
+                    "広告効果予測中..."
+                ];
+                
+                const aiSuggestions = document.getElementById('aiSuggestions');
+                setInterval(() => {
+                    const suggestionElem = aiSuggestions.querySelector('.suggestion');
+                    const randomSuggestion = suggestions[Math.floor(Math.random() * suggestions.length)];
+                    suggestionElem.textContent = randomSuggestion;
+                    
+                    // フェードイン効果
+                    suggestionElem.style.opacity = '0';
+                    setTimeout(() => {
+                        suggestionElem.style.opacity = '1';
+                    }, 100);
+                }, 3000);
+            }
+            
+            function processWithAiProject() {
+                const availableProjects = projects.filter(p => 
+                    p.side === 'with-ai' && !p.inProgress && !p.completed
+                );
+                
+                if (availableProjects.length === 0) {
+                    // もっと仕事を追加
+                    if (Math.random() < 0.3) { // 30%の確率で新しい案件を追加
+                        const newId = projects.length;
+                        createProject('with-ai', newId);
+                        withAiStatus.textContent = '処理速度: 超高速 🚀 仕事が増えている';
+                    }
+                    return;
+                }
+                
+                const project = availableProjects[0];
+                project.inProgress = true;
+                
+                const element = project.element;
+                element.classList.add('processing');
+                element.style.transform = 'scale(1.1)';
+                
+                // AIが処理しているような視覚効果
+                // 文字を変更して分析中の様子を表示
+                const originalText = element.textContent;
+                const processingTexts = [
+                    "AI分析中...",
+                    "最適化中...",
+                    "処理中..."
+                ];
+                
+                let processingStep = 0;
+                const textInterval = setInterval(() => {
+                    element.textContent = processingTexts[processingStep % processingTexts.length];
+                    processingStep++;
+                }, 150);
+                
+                // 0.5秒で処理完了
+                setTimeout(() => {
+                    clearInterval(textInterval);
+                    element.textContent = originalText;
+                    element.classList.remove('processing');
+                    element.style.opacity = '0.3';
+                    element.style.transform = 'scale(0.9)';
+                    project.completed = true;
+                    project.inProgress = false;
+                    
+                    withAiCount++;
+                    withAiCounter.textContent = withAiCount;
+                    
+                    // AIを使う人はもっと効率的に処理できるので、新しい案件が来る
+                    if (withAiCount % 5 === 0 && Math.random() < 0.7) {
+                        const newId = projects.length;
+                        createProject('with-ai', newId);
+                        withAiStatus.textContent = '処理速度: 超高速 🚀 仕事が集中している';
+                    }
+                }, 500);
+            }
+            
+            function startProjectMigration() {
+                // 仕事の移動処理
+                setInterval(() => {
+                    const noAiAvailableProjects = projects.filter(p => 
+                        p.side === 'no-ai' && !p.inProgress && !p.completed
+                    );
+                    
+                    if (noAiAvailableProjects.length > 0) {
+                        // ランダムに1つ選ぶ
+                        const index = Math.floor(Math.random() * noAiAvailableProjects.length);
+                        const project = noAiAvailableProjects[index];
+                        
+                        // AIを使う人側に移動
+                        migrateProject(project);
+                    }
+                }, 3000); // 3秒ごとに1案件移動
+            }
+            
+            function migrateProject(project) {
+                const element = project.element;
+                
+                // 元の場所から消す
+                element.style.transition = 'all 1s ease-in-out';
+                element.style.transform = 'translateX(100vw) scale(0.6) rotate(360deg)';
+                element.style.opacity = '0';
+                
+                setTimeout(() => {
+                    // AIを使う人の領域に移動
+                    noAiProjects.removeChild(element);
+                    withAiProjects.appendChild(element);
+                    
+                    // 新しい位置を設定
+                    const containerRect = withAiProjects.getBoundingClientRect();
+                    const x = Math.random() * (containerRect.width - 70);
+                    const y = Math.random() * (containerRect.height - 90);
+                    
+                    element.style.left = `${x}px`;
+                    element.style.top = `${y}px`;
+                    
+                    // 再表示
+                    setTimeout(() => {
+                        element.style.transform = 'scale(1) rotate(0deg)';
+                        element.style.opacity = '1';
+                        element.style.backgroundColor = '#111';
+                        element.style.borderColor = '#4b6eff';
+                        element.style.color = '#4b6eff';
+                        
+                        // プロジェクトの所属を変更
+                        project.side = 'with-ai';
+                        
+                        // AIを使わない人の状態を更新
+                        const noAiAvailableProjects = projects.filter(p => 
+                            p.side === 'no-ai' && !p.completed
+                        );
+                        
+                        if (noAiAvailableProjects.length <= 3) {
+                            noAiStatus.textContent = '処理速度: 遅い ⚠️ 仕事がほぼなくなった';
+                            noAiStatus.style.color = '#ff4b4b';
+                        }
+                    }, 100);
+                }, 1000);
+            }
+            
+            function showFinalMessage() {
+                messageContainer.style.transform = 'translateY(0)';
+                withAiStatus.textContent = '処理速度: 超高速 🚀 仕事が集中している';
+                withAiStatus.style.color = '#4b6eff';
+                withAiStatus.classList.add('pulse');
+            }
+        });
+    </script>
+</body>
+</html>
