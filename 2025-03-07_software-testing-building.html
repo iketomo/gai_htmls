@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ソフトウェアテストの重要性</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        h1 {
+            margin-bottom: 30px;
+            color: #2c3e50;
+        }
+        .buildings-container {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .building-wrapper {
+            width: 45%;
+            position: relative;
+        }
+        .building-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            padding: 5px;
+            border-radius: 5px;
+        }
+        .with-tests {
+            background-color: #d5f5e3;
+            color: #27ae60;
+        }
+        .without-tests {
+            background-color: #fadbd8;
+            color: #e74c3c;
+        }
+        .foundation {
+            height: 20px;
+            background-color: #7f8c8d;
+            border-radius: 4px 4px 0 0;
+            margin-bottom: 2px;
+            position: relative;
+            z-index: 1;
+        }
+        .building {
+            position: relative;
+            height: 400px;
+            background-color: #eee;
+            display: flex;
+            flex-direction: column-reverse;
+            justify-content: flex-start;
+            align-items: center;
+            overflow: hidden;
+            border-radius: 0 0 8px 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .block {
+            width: 90%;
+            height: 40px;
+            margin-bottom: 2px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            position: relative;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        .stable {
+            background-color: #3498db;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .tested {
+            background-color: #2ecc71;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .untested {
+            background-color: #e74c3c;
+        }
+        .unstable {
+            animation: wobble 1s infinite;
+        }
+        .bug {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background-color: #f39c12;
+            border-radius: 50%;
+            animation: blink 0.5s infinite;
+        }
+        .test-scanner {
+            position: absolute;
+            width: 100%;
+            height: 5px;
+            background-color: #2ecc71;
+            z-index: 10;
+            animation: scan 2s ease-in-out;
+        }
+        .controls {
+            margin: 20px 0;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 0 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .add-feature {
+            background-color: #3498db;
+            color: white;
+        }
+        .add-feature:hover {
+            background-color: #2980b9;
+        }
+        .refactor {
+            background-color: #9b59b6;
+            color: white;
+        }
+        .refactor:hover {
+            background-color: #8e44ad;
+        }
+        .fix-bugs {
+            background-color: #f1c40f;
+            color: #333;
+        }
+        .fix-bugs:hover {
+            background-color: #f39c12;
+        }
+        .reset {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .reset:hover {
+            background-color: #c0392b;
+        }
+        .message-box {
+            margin: 20px auto;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            max-width: 80%;
+        }
+        .collapsed {
+            animation: collapse 1s forwards;
+        }
+        .info-panel {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+        .info-card {
+            width: 45%;
+            padding: 15px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 10px;
+        }
+        .stat {
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .stat-label {
+            font-size: 14px;
+            color: #7f8c8d;
+        }
+        
+        @keyframes wobble {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px) rotate(-2deg); }
+            50% { transform: translateX(0); }
+            75% { transform: translateX(5px) rotate(2deg); }
+            100% { transform: translateX(0); }
+        }
+        
+        @keyframes collapse {
+            0% { transform: translateY(0); opacity: 1; }
+            50% { transform: translateY(10px) rotate(5deg); }
+            100% { transform: translateY(300px) rotate(15deg); opacity: 0; }
+        }
+        
+        @keyframes blink {
+            0% { opacity: 0.3; }
+            50% { opacity: 1; }
+            100% { opacity: 0.3; }
+        }
+        
+        @keyframes scan {
+            0% { top: 100%; }
+            50% { top: 0; }
+            100% { top: -10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ソフトウェアテストの重要性</h1>
+        
+        <div class="buildings-container">
+            <div class="building-wrapper">
+                <div class="building-title with-tests">テスト有りの開発</div>
+                <div class="foundation"></div>
+                <div class="building" id="tested-building"></div>
+            </div>
+            
+            <div class="building-wrapper">
+                <div class="building-title without-tests">テスト無しの開発</div>
+                <div class="foundation"></div>
+                <div class="building" id="untested-building"></div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <button class="add-feature" id="add-feature">新機能追加</button>
+            <button class="refactor" id="refactor">リファクタリング</button>
+            <button class="fix-bugs" id="fix-bugs">バグ修正</button>
+            <button class="reset" id="reset">リセット</button>
+        </div>
+        
+        <div class="message-box" id="message">
+            <p>上のボタンを押して、テスト有り・無しの開発の違いを見てみましょう。</p>
+        </div>
+        
+        <div class="info-panel">
+            <div class="info-card">
+                <h3>テスト有りの開発</h3>
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-number" id="tested-features">0</div>
+                        <div class="stat-label">機能数</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number" id="tested-bugs">0</div>
+                        <div class="stat-label">バグ数</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number" id="tested-stability">100%</div>
+                        <div class="stat-label">安定性</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="info-card">
+                <h3>テスト無しの開発</h3>
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-number" id="untested-features">0</div>
+                        <div class="stat-label">機能数</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number" id="untested-bugs">0</div>
+                        <div class="stat-label">バグ数</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number" id="untested-stability">100%</div>
+                        <div class="stat-label">安定性</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 状態管理
+        const state = {
+            testedBuilding: {
+                blocks: [],
+                bugs: 0,
+                features: 0,
+                stability: 100
+            },
+            untestedBuilding: {
+                blocks: [],
+                bugs: 0,
+                features: 0,
+                stability: 100
+            },
+            blockNames: [
+                "ユーザー認証モジュール", "データベース接続", "UI表示コンポーネント", 
+                "API連携機能", "データ検証機能", "レポート生成モジュール",
+                "通知システム", "支払い処理", "画像処理機能", "検索エンジン"
+            ]
+        };
+
+        // DOM要素
+        const testedBuilding = document.getElementById('tested-building');
+        const untestedBuilding = document.getElementById('untested-building');
+        const messageBox = document.getElementById('message');
+        const addFeatureBtn = document.getElementById('add-feature');
+        const refactorBtn = document.getElementById('refactor');
+        const fixBugsBtn = document.getElementById('fix-bugs');
+        const resetBtn = document.getElementById('reset');
+        
+        // 統計表示要素
+        const testedFeaturesEl = document.getElementById('tested-features');
+        const testedBugsEl = document.getElementById('tested-bugs');
+        const testedStabilityEl = document.getElementById('tested-stability');
+        const untestedFeaturesEl = document.getElementById('untested-features');
+        const untestedBugsEl = document.getElementById('untested-bugs');
+        const untestedStabilityEl = document.getElementById('untested-stability');
+
+        // メッセージ一覧
+        const messages = {
+            addFeature: [
+                "新機能を追加しました。テスト有りの開発では、バグがすぐに発見されます。",
+                "機能が追加されました。テスト無しの開発では、隠れたバグが発生する可能性があります。",
+                "新しい機能を実装。テストがあると、既存の機能が壊れていないことを確認できます。",
+                "機能を追加しました。テスト無しの場合、バグは後で大きな問題になることがあります。"
+            ],
+            refactor: [
+                "リファクタリングを実行。テストがあると安全にコードを改善できます。",
+                "コードを整理しました。テスト無しの場合、リファクタリングは危険な作業になります。",
+                "コード改善を行いました。テストは変更による副作用を即座に検出します。",
+                "テスト無しでリファクタリングすると、予期せぬバグが発生しやすくなります。"
+            ],
+            fixBugs: [
+                "バグ修正を行いました。テスト有りの開発では、修正が他の機能に影響しないことを確認できます。",
+                "バグを修正しましたが、テスト無しでは新たなバグが発生するリスクがあります。",
+                "テストによって、修正がすべての機能で正しく動作することを確認できました。",
+                "テスト無しの開発では、バグ修正が複雑で時間がかかることがあります。"
+            ],
+            collapse: [
+                "テスト無しの開発で建物が崩壊しました！これは技術的負債の蓄積による結果です。",
+                "システムがクラッシュしました！テスト不足により、小さな問題が大きな障害に発展しました。",
+                "建物が崩壊しました！これが本番環境でのバグの影響です。顧客の信頼を失う可能性があります。"
+            ]
+        };
+
+        // ランダムメッセージを取得する関数
+        function getRandomMessage(type) {
+            const messageList = messages[type];
+            return messageList[Math.floor(Math.random() * messageList.length)];
+        }
+
+        // メッセージを表示する関数
+        function showMessage(text) {
+            messageBox.innerHTML = `<p>${text}</p>`;
+        }
+
+        // 統計を更新する関数
+        function updateStats() {
+            testedFeaturesEl.textContent = state.testedBuilding.features;
+            testedBugsEl.textContent = state.testedBuilding.bugs;
+            testedStabilityEl.textContent = `${state.testedBuilding.stability}%`;
+            
+            untestedFeaturesEl.textContent = state.untestedBuilding.features;
+            untestedBugsEl.textContent = state.untestedBuilding.bugs;
+            untestedStabilityEl.textContent = `${state.untestedBuilding.stability}%`;
+        }
+
+        // ブロック作成関数
+        function createBlock(name, isTested) {
+            const block = document.createElement('div');
+            block.className = `block ${isTested ? 'stable' : 'untested'}`;
+            block.textContent = name;
+            return block;
+        }
+
+        // バグ作成関数
+        function createBug(block) {
+            const bug = document.createElement('div');
+            bug.className = 'bug';
+            bug.style.left = `${Math.random() * 80 + 10}%`;
+            bug.style.top = `${Math.random() * 80 + 10}%`;
+            block.appendChild(bug);
+            return bug;
+        }
+
+        // テストスキャン作成関数
+        function createTestScanner(building) {
+            const scanner = document.createElement('div');
+            scanner.className = 'test-scanner';
+            building.appendChild(scanner);
+            
+            // スキャン完了後に要素を削除
+            setTimeout(() => {
+                scanner.remove();
+            }, 2000);
+        }
+
+        // 新機能追加関数
+        function addFeature() {
+            if (state.testedBuilding.blocks.length >= 10 || state.untestedBuilding.blocks.length >= 10) {
+                showMessage("これ以上機能を追加できません。「リセット」を押して最初からやり直してください。");
+                return;
+            }
+            
+            const featureName = state.blockNames[state.testedBuilding.blocks.length];
+            
+            // テスト有りの建物
+            const testedBlock = createBlock(featureName, true);
+            testedBuilding.appendChild(testedBlock);
+            state.testedBuilding.blocks.push(testedBlock);
+            state.testedBuilding.features++;
+            
+            // テスト実行のアニメーション
+            createTestScanner(testedBuilding);
+            
+            // テスト無しの建物
+            const untestedBlock = createBlock(featureName, false);
+            untestedBuilding.appendChild(untestedBlock);
+            state.untestedBuilding.blocks.push(untestedBlock);
+            state.untestedBuilding.features++;
+            
+            // テスト無しの場合、50%の確率でバグが混入
+            if (Math.random() < 0.5) {
+                createBug(untestedBlock);
+                state.untestedBuilding.bugs++;
+                untestedBlock.classList.add('unstable');
+                
+                // 安定性の低下
+                state.untestedBuilding.stability = Math.max(0, state.untestedBuilding.stability - 10);
+                
+                // バグが多すぎると崩壊
+                if (state.untestedBuilding.bugs >= 3) {
+                    setTimeout(() => {
+                        const collapseIndex = state.untestedBuilding.blocks.length - 3;
+                        if (collapseIndex >= 0) {
+                            for (let i = 0; i <= collapseIndex; i++) {
+                                state.untestedBuilding.blocks[i].classList.add('collapsed');
+                            }
+                            showMessage(getRandomMessage('collapse'));
+                        }
+                    }, 1000);
+                }
+            }
+            
+            showMessage(getRandomMessage('addFeature'));
+            updateStats();
+        }
+
+        // リファクタリング関数
+        function refactor() {
+            if (state.testedBuilding.blocks.length === 0) {
+                showMessage("リファクタリングするコードがありません。まずは「新機能追加」を押してください。");
+                return;
+            }
+            
+            // テスト有りの建物
+            createTestScanner(testedBuilding);
+            
+            // テスト無しの建物で30%の確率で新たなバグが発生
+            if (Math.random() < 0.3 && state.untestedBuilding.blocks.length > 0) {
+                const randomBlockIndex = Math.floor(Math.random() * state.untestedBuilding.blocks.length);
+                const randomBlock = state.untestedBuilding.blocks[randomBlockIndex];
+                
+                createBug(randomBlock);
+                randomBlock.classList.add('unstable');
+                state.untestedBuilding.bugs++;
+                
+                // 安定性の低下
+                state.untestedBuilding.stability = Math.max(0, state.untestedBuilding.stability - 15);
+                
+                // バグが多すぎると崩壊
+                if (state.untestedBuilding.bugs >= 3) {
+                    setTimeout(() => {
+                        const collapseIndex = Math.min(randomBlockIndex + 1, state.untestedBuilding.blocks.length - 1);
+                        for (let i = 0; i <= collapseIndex; i++) {
+                            state.untestedBuilding.blocks[i].classList.add('collapsed');
+                        }
+                        showMessage(getRandomMessage('collapse'));
+                    }, 1000);
+                }
+            }
+            
+            showMessage(getRandomMessage('refactor'));
+            updateStats();
+        }
+
+        // バグ修正関数
+        function fixBugs() {
+            if (state.untestedBuilding.bugs === 0) {
+                showMessage("修正するバグがありません。");
+                return;
+            }
+            
+            // テスト有りの建物
+            createTestScanner(testedBuilding);
+            
+            // テスト無しの建物
+            const bugs = document.querySelectorAll('#untested-building .bug');
+            if (bugs.length > 0) {
+                // 半分のバグを修正
+                const fixCount = Math.ceil(bugs.length / 2);
+                for (let i = 0; i < fixCount && i < bugs.length; i++) {
+                    bugs[i].remove();
+                }
+                
+                state.untestedBuilding.bugs = Math.max(0, state.untestedBuilding.bugs - fixCount);
+                
+                // 安定性の回復（部分的）
+                state.untestedBuilding.stability = Math.min(100, state.untestedBuilding.stability + 5);
+                
+                // 不安定なブロックの一部を安定化
+                const unstableBlocks = document.querySelectorAll('#untested-building .unstable');
+                for (let i = 0; i < unstableBlocks.length && i < fixCount; i++) {
+                    unstableBlocks[i].classList.remove('unstable');
+                }
+            }
+            
+            showMessage(getRandomMessage('fixBugs'));
+            updateStats();
+        }
+
+        // リセット関数
+        function reset() {
+            // DOM要素をクリア
+            testedBuilding.innerHTML = '';
+            untestedBuilding.innerHTML = '';
+            
+            // 状態をリセット
+            state.testedBuilding.blocks = [];
+            state.testedBuilding.bugs = 0;
+            state.testedBuilding.features = 0;
+            state.testedBuilding.stability = 100;
+            
+            state.untestedBuilding.blocks = [];
+            state.untestedBuilding.bugs = 0;
+            state.untestedBuilding.features = 0;
+            state.untestedBuilding.stability = 100;
+            
+            showMessage("リセットしました。上のボタンを押して、テスト有り・無しの開発の違いを見てみましょう。");
+            updateStats();
+        }
+
+        // イベントリスナー
+        addFeatureBtn.addEventListener('click', addFeature);
+        refactorBtn.addEventListener('click', refactor);
+        fixBugsBtn.addEventListener('click', fixBugs);
+        resetBtn.addEventListener('click', reset);
+
+        // 初期メッセージ
+        showMessage("上のボタンを押して、テスト有り・無しの開発の違いを見てみましょう。");
+    </script>
+</body>
+</html>

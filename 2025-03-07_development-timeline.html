@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>開発タイムライン比較</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #2c3e50;
+        }
+        .description {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .timeline-container {
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+            margin-bottom: 30px;
+        }
+        .timeline-header {
+            display: flex;
+            margin-bottom: 10px;
+        }
+        .timeline-title {
+            width: 150px;
+            font-weight: bold;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .with-tests {
+            background-color: #d5f5e3;
+            color: #27ae60;
+        }
+        .without-tests {
+            background-color: #fadbd8;
+            color: #e74c3c;
+        }
+        .timeline {
+            display: flex;
+            position: relative;
+            height: 100px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .timeline-progress {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 100%;
+            width: 0;
+            background-color: rgba(0, 0, 0, 0.05);
+            transition: width 0.5s linear;
+            z-index: 1;
+        }
+        .timeline-delay {
+            position: absolute;
+            height: 100%;
+            background-color: rgba(231, 76, 60, 0.15);
+            z-index: 0;
+            border-left: 2px dashed #e74c3c;
+        }
+        .timeline-warning {
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            background-image: repeating-linear-gradient(
+                45deg,
+                rgba(231, 76, 60, 0.1),
+                rgba(231, 76, 60, 0.1) 10px,
+                rgba(231, 76, 60, 0.2) 10px,
+                rgba(231, 76, 60, 0.2) 20px
+            );
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            z-index: 0;
+        }
+        .week-markers {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            z-index: 0;
+        }
+        .week-marker {
+            flex: 1;
+            height: 100%;
+            border-right: 1px dashed #ddd;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding-bottom: 5px;
+            color: #95a5a6;
+            font-size: 12px;
+        }
+        .week-marker:last-child {
+            border-right: none;
+        }
+        .events-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+        }
+        .event {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            top: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .event.visible {
+            opacity: 1;
+        }
+        .feature {
+            background-color: #3498db;
+        }
+        .test {
+            background-color: #2ecc71;
+        }
+        .bug {
+            background-color: #e74c3c;
+        }
+        .bugfix {
+            background-color: #f39c12;
+        }
+        .complete {
+            background-color: #9b59b6;
+        }
+        .tooltip {
+            position: absolute;
+            bottom: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #34495e;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .event:hover .tooltip {
+            opacity: 1;
+        }
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .start {
+            background-color: #2ecc71;
+            color: white;
+        }
+        .start:hover {
+            background-color: #27ae60;
+        }
+        .pause {
+            background-color: #f39c12;
+            color: white;
+        }
+        .pause:hover {
+            background-color: #e67e22;
+        }
+        .reset {
+            background-color: #e74c3c;
+            color: white;
+        }
+        .reset:hover {
+            background-color: #c0392b;
+        }
+        .stats-container {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+        }
+        .stats-card {
+            width: 45%;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+        }
+        .stats-header {
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        .stats-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .stats-label {
+            font-weight: bold;
+        }
+        .stats-value {
+            font-weight: bold;
+        }
+        .message {
+            padding: 15px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+            text-align: center;
+        }
+        .event-log {
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 20px;
+            padding: 15px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        .log-entry {
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+        .log-time {
+            font-weight: bold;
+            color: #7f8c8d;
+        }
+        .log-tested {
+            color: #27ae60;
+        }
+        .log-untested {
+            color: #e74c3c;
+        }
+        .emoji {
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>ソフトウェアテストの重要性</h1>
+        <h2>開発タイムライン比較</h2>
+        
+        <div class="description">
+            <p>このアニメーションでは、テスト有りの開発とテスト無しの開発の時間経過による違いを比較します。</p>
+            <p>テスト無しの開発は最初は速く進みますが、後半でバグ修正に多くの時間を費やすことになります。</p>
+        </div>
+        
+        <div class="controls">
+            <button class="start" id="start-button">開始</button>
+            <button class="pause" id="pause-button" disabled>一時停止</button>
+            <button class="reset" id="reset-button" disabled>リセット</button>
+        </div>
+        
+        <div class="timeline-container">
+            <div>
+                <div class="timeline-header">
+                    <div class="timeline-title with-tests">テスト有りの開発</div>
+                </div>
+                <div class="timeline" id="tested-timeline">
+                    <div class="week-markers" id="tested-weeks"></div>
+                    <div class="timeline-progress" id="tested-progress"></div>
+                    <div class="events-container" id="tested-events"></div>
+                </div>
+            </div>
+            
+            <div>
+                <div class="timeline-header">
+                    <div class="timeline-title without-tests">テスト無しの開発</div>
+                </div>
+                <div class="timeline" id="untested-timeline">
+                    <div class="week-markers" id="untested-weeks"></div>
+                    <div class="timeline-warning" id="untested-warning"></div>
+                    <div class="timeline-progress" id="untested-progress"></div>
+                    <div class="events-container" id="untested-events"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="stats-container">
+            <div class="stats-card">
+                <div class="stats-header">
+                    <h3>テスト有りの開発</h3>
+                </div>
+                <div class="stats-row">
+                    <div class="stats-label">経過時間:</div>
+                    <div class="stats-value" id="tested-time">0週</div>
+                </div>
+                <div class="stats-row">
+                    <div class="stats-label">実装機能:</div>
+                    <div class="stats-value" id="tested-features">0個</div>
+                </div>
+                <div class="stats-row">
+                    <div class="stats-label">テスト実行:</div>
+                    <div class="stats-value" id="tested-tests">0回</div>
+                </div>
+                <div class="stats-row">
+                    <div class="stats-label">発見バグ:</div>
+                    <div class="stats-value" id="tested-bugs">0個</div>
+                </div>
+                <div class="stats-row">
+                    <div class="stats-label">修正バグ:</div>
+                    <div class="stats-value" id="tested-fixes">0個</div>
+                </div>
+            </div>
+            
+            <div class="stats-card">
+                <div class="stats-header">
+                    <h3>テスト無しの開発</h3>
+                </div>
+                <div class="stats-row">
+                    <div class="stats-label">経過時間:</div>
+                    <div class="stats-value" id="untested-time">0週</div>
+                </div>
+                <div class="stats-row">
+                    <div class="stats-label">実装機能:</div>
+                    <div class="stats-value" id="untested-features">0個</div>
+                </div>
+                <div class="stats-row">
+                    <div class="stats-label">テスト実行:</div>
+                    <div class="stats-value" id="untested-tests">0回</div>
+                </div>
+                <div class="stats-row">
+                    <div class="stats-label">発見バグ:</div>
+                    <div class="stats-value" id="untested-bugs">0個</div>
+                </div>
+                <div class="stats-row">
+                    <div class="stats-label">修正バグ:</div>
+                    <div class="stats-value" id="untested-fixes">0個</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="message" id="message">
+            「開始」ボタンを押して、開発の進行を見てみましょう。
+        </div>
+        
+        <div class="event-log" id="event-log">
+            <h3>開発ログ</h3>
+            <!-- ここにログエントリが追加されます -->
+        </div>
+    </div>
+
+    <script>
+        // DOM要素
+        const startButton = document.getElementById('start-button');
+        const pauseButton = document.getElementById('pause-button');
+        const resetButton = document.getElementById('reset-button');
+        
+        const testedProgress = document.getElementById('tested-progress');
+        const untestedProgress = document.getElementById('untested-progress');
+        const untestedWarning = document.getElementById('untested-warning');
+        const testedEvents = document.getElementById('tested-events');
+        const untestedEvents = document.getElementById('untested-events');
+        const testedWeeks = document.getElementById('tested-weeks');
+        const untestedWeeks = document.getElementById('untested-weeks');
+        
+        const messageEl = document.getElementById('message');
+        const eventLog = document.getElementById('event-log');
+        
+        // 統計表示要素
+        const testedTimeEl = document.getElementById('tested-time');
+        const testedFeaturesEl = document.getElementById('tested-features');
+        const testedTestsEl = document.getElementById('tested-tests');
+        const testedBugsEl = document.getElementById('tested-bugs');
+        const testedFixesEl = document.getElementById('tested-fixes');
+        
+        const untestedTimeEl = document.getElementById('untested-time');
+        const untestedFeaturesEl = document.getElementById('untested-features');
+        const untestedTestsEl = document.getElementById('untested-tests');
+        const untestedBugsEl = document.getElementById('untested-bugs');
+        const untestedFixesEl = document.getElementById('untested-fixes');
+        
+        // 状態管理
+        const state = {
+            isRunning: false,
+            currentWeek: 0,
+            totalWeeks: 20,
+            interval: null,
+            timeMultiplier: 1, // 時間の進み方の倍率
+            activeBugFixes: 0, // アクティブなバグ修正の数
+            warningLevel: 0,   // 警告レベル
+            tested: {
+                features: 0,
+                tests: 0,
+                bugs: 0,
+                fixes: 0,
+                progress: 0,    // 実際の進捗率
+                completed: false
+            },
+            untested: {
+                features: 0,
+                tests: 0,
+                bugs: 0,
+                fixes: 0,
+                progress: 0,    // 実際の進捗率
+                activeBugs: 0,  // アクティブなバグの数
+                delayFactor: 1, // 遅延係数
+                completed: false
+            },
+            eventLog: [],
+            delayedEvents: []  // 遅延中のイベント
+        };
+        
+        // 機能リスト（実装される機能と予測バグ数）
+        const features = [
+            { name: "ログイン機能", bugs: 2 },
+            { name: "ユーザー登録", bugs: 1 },
+            { name: "プロフィール編集", bugs: 2 },
+            { name: "データ一覧表示", bugs: 1 },
+            { name: "データフィルタリング", bugs: 3 },
+            { name: "データソート", bugs: 2 },
+            { name: "データエクスポート", bugs: 2 },
+            { name: "レポート生成", bugs: 3 }
+        ];
+        
+        // イベントデータ（両方のタイムラインのイベント）
+        const events = {
+            tested: [
+                { type: 'feature', week: 1, name: "ユーザー要件分析", tooltip: "ユーザー要件の分析開始", severity: 0 },
+                { type: 'test', week: 2, name: "テスト計画作成", tooltip: "テスト計画の策定", severity: 0 },
+                { type: 'feature', week: 3, name: "ログイン機能開発", tooltip: "ログイン機能の実装", severity: 0 },
+                { type: 'test', week: 3.5, name: "ログイン機能テスト", tooltip: "ログイン機能のテスト実施", severity: 0 },
+                { type: 'bug', week: 3.6, name: "バグ発見", tooltip: "認証エラー処理のバグを発見", severity: 1 },
+                { type: 'bugfix', week: 3.8, name: "バグ修正", tooltip: "認証エラー処理のバグを修正", severity: 0 },
+                { type: 'feature', week: 4.5, name: "ユーザー登録機能", tooltip: "ユーザー登録機能の実装", severity: 0 },
+                { type: 'test', week: 5, name: "ユーザー登録テスト", tooltip: "ユーザー登録機能のテスト実施", severity: 0 },
+                { type: 'feature', week: 6, name: "プロフィール機能", tooltip: "プロフィール編集機能の実装", severity: 0 },
+                { type: 'test', week: 6.5, name: "プロフィールテスト", tooltip: "プロフィール編集機能のテスト実施", severity: 0 },
+                { type: 'bug', week: 6.6, name: "バグ発見", tooltip: "画像アップロード時のバグを発見", severity: 1 },
+                { type: 'bugfix', week: 6.8, name: "バグ修正", tooltip: "画像アップロード時のバグを修正", severity: 0 },
+                { type: 'feature', week: 7.5, name: "データ一覧機能", tooltip: "データ一覧表示機能の実装", severity: 0 },
+                { type: 'test', week: 8, name: "データ一覧テスト", tooltip: "データ一覧表示機能のテスト実施", severity: 0 },
+                { type: 'feature', week: 9, name: "フィルタリング機能", tooltip: "データフィルタリング機能の実装", severity: 0 },
+                { type: 'test', week: 9.5, name: "フィルタリングテスト", tooltip: "データフィルタリング機能のテスト実施", severity: 0 },
+                { type: 'bug', week: 9.6, name: "バグ発見", tooltip: "複合フィルタでのバグを発見", severity: 1 },
+                { type: 'bugfix', week: 9.8, name: "バグ修正", tooltip: "複合フィルタでのバグを修正", severity: 0 },
+                { type: 'feature', week: 10.5, name: "ソート機能", tooltip: "データソート機能の実装", severity: 0 },
+                { type: 'test', week: 11, name: "ソート機能テスト", tooltip: "データソート機能のテスト実施", severity: 0 },
+                { type: 'feature', week: 12, name: "エクスポート機能", tooltip: "データエクスポート機能の実装", severity: 0 },
+                { type: 'test', week: 12.5, name: "エクスポートテスト", tooltip: "データエクスポート機能のテスト実施", severity: 0 },
+                { type: 'bug', week: 12.6, name: "バグ発見", tooltip: "大容量ファイル処理時のバグを発見", severity: 1 },
+                { type: 'bugfix', week: 12.8, name: "バグ修正", tooltip: "大容量ファイル処理時のバグを修正", severity: 0 },
+                { type: 'feature', week: 13.5, name: "レポート機能", tooltip: "レポート生成機能の実装", severity: 0 },
+                { type: 'test', week: 14, name: "レポートテスト", tooltip: "レポート生成機能のテスト実施", severity: 0 },
+                { type: 'bug', week: 14.1, name: "バグ発見", tooltip: "レポートフォーマットのバグを発見", severity: 1 },
+                { type: 'bugfix', week: 14.3, name: "バグ修正", tooltip: "レポートフォーマットのバグを修正", severity: 0 },
+                { type: 'test', week: 15, name: "統合テスト", tooltip: "すべての機能の統合テスト実施", severity: 0 },
+                { type: 'complete', week: 16, name: "完了", tooltip: "プロジェクト完了！高品質な製品を納品", severity: 0 }
+            ],
+            untested: [
+                { type: 'feature', week: 1, name: "ユーザー要件分析", tooltip: "ユーザー要件の分析開始", severity: 0 },
+                { type: 'feature', week: 2, name: "ログイン機能開発", tooltip: "ログイン機能の実装（テスト無し）", severity: 0 },
+                { type: 'feature', week: 3, name: "ユーザー登録機能", tooltip: "ユーザー登録機能の実装（テスト無し）", severity: 0 },
+                { type: 'feature', week: 4, name: "プロフィール機能", tooltip: "プロフィール編集機能の実装（テスト無し）", severity: 0 },
+                { type: 'feature', week: 5, name: "データ一覧機能", tooltip: "データ一覧表示機能の実装（テスト無し）", severity: 0 },
+                { type: 'feature', week: 6, name: "フィルタリング機能", tooltip: "データフィルタリング機能の実装（テスト無し）", severity: 0 },
+                { type: 'feature', week: 7, name: "ソート機能", tooltip: "データソート機能の実装（テスト無し）", severity: 0 },
+                { type: 'bug', week: 7.3, name: "本番バグ発見", tooltip: "ユーザーからログイン機能のバグ報告", severity: 2 },
+                { type: 'bugfix', week: 8, name: "バグ修正", tooltip: "ログイン機能のバグ修正に時間がかかる", severity: 0, delay: 0.7 },
+                { type: 'feature', week: 9, name: "エクスポート機能", tooltip: "データエクスポート機能の実装（テスト無し）", severity: 0 },
+                { type: 'bug', week: 9.5, name: "本番バグ発見", tooltip: "ユーザーからプロフィール機能のバグ報告", severity: 2 },
+                { type: 'bugfix', week: 10.5, name: "バグ修正", tooltip: "プロフィール機能のバグ修正", severity: 0, delay: 1.0 },
+                { type: 'bug', week: 11, name: "本番バグ発見", tooltip: "フィルタリング機能で重大なバグ発見", severity: 3 },
+                { type: 'bugfix', week: 12, name: "バグ修正", tooltip: "フィルタリング機能の複雑なバグを修正", severity: 0, delay: 1.0 },
+                { type: 'feature', week: 13, name: "レポート機能", tooltip: "レポート生成機能の実装（テスト無し）", severity: 0 },
+                { type: 'bug', week: 13.5, name: "本番バグ発見", tooltip: "エクスポート機能でデータ損失のバグ発見", severity: 3 },
+                { type: 'bug', week: 14, name: "本番バグ発見", tooltip: "ソート機能でクラッシュするバグ発見", severity: 3 },
+                { type: 'bugfix', week: 15, name: "バグ修正", tooltip: "複数のバグを同時に修正中", severity: 0, delay: 1.5 },
+                { type: 'bug', week: 16, name: "本番バグ発見", tooltip: "レポート機能で深刻なバグが発見", severity: 3 },
+                { type: 'bugfix', week: 17, name: "バグ修正", tooltip: "レポート機能の修正に苦戦", severity: 0, delay: 1.0 },
+                { type: 'test', week: 18, name: "緊急テスト", tooltip: "バグが多すぎるため緊急テスト実施", severity: 0 },
+                { type: 'bug', week: 18.5, name: "バグ発見", tooltip: "さらに多くのバグが見つかる", severity: 2 },
+                { type: 'bugfix', week: 19.5, name: "バグ修正", tooltip: "残りのバグを修正", severity: 0, delay: 0.5 },
+                { type: 'complete', week: 20, name: "完了", tooltip: "プロジェクト完了...しかし品質に不安が残る", severity: 0 }
+            ]
+        };
+        
+        // 週マーカーを作成
+        function createWeekMarkers() {
+            // テスト有りのタイムライン
+            for (let i = 0; i <= state.totalWeeks; i += 4) {
+                const weekMarker = document.createElement('div');
+                weekMarker.className = 'week-marker';
+                weekMarker.textContent = i + '週';
+                testedWeeks.appendChild(weekMarker);
+            }
+            
+            // テスト無しのタイムライン
+            for (let i = 0; i <= state.totalWeeks; i += 4) {
+                const weekMarker = document.createElement('div');
+                weekMarker.className = 'week-marker';
+                weekMarker.textContent = i + '週';
+                untestedWeeks.appendChild(weekMarker);
+            }
+        }
+        
+        // イベントを作成
+        function createEvents() {
+            // テスト有りのイベント
+            events.tested.forEach(event => {
+                const eventEl = document.createElement('div');
+                eventEl.className = `event ${event.type}`;
+                const position = (event.week / state.totalWeeks) * 100;
+                eventEl.style.left = `${position}%`;
+                
+                let emoji = '';
+                switch (event.type) {
+                    case 'feature': emoji = '🔨'; break;
+                    case 'test': emoji = '🧪'; break;
+                    case 'bug': emoji = '🐞'; break;
+                    case 'bugfix': emoji = '🔧'; break;
+                    case 'complete': emoji = '🎉'; break;
+                }
+                
+                eventEl.innerHTML = `
+                    ${emoji}
+                    <div class="tooltip">${event.tooltip}</div>
+                `;
+                
+                testedEvents.appendChild(eventEl);
+            });
+            
+            // テスト無しのイベント
+            events.untested.forEach(event => {
+                const eventEl = document.createElement('div');
+                eventEl.className = `event ${event.type}`;
+                const position = (event.week / state.totalWeeks) * 100;
+                eventEl.style.left = `${position}%`;
+                
+                let emoji = '';
+                switch (event.type) {
+                    case 'feature': emoji = '🔨'; break;
+                    case 'test': emoji = '🧪'; break;
+                    case 'bug': emoji = '🐞'; break;
+                    case 'bugfix': emoji = '🔧'; break;
+                    case 'complete': emoji = '🎉'; break;
+                }
+                
+                eventEl.innerHTML = `
+                    ${emoji}
+                    <div class="tooltip">${event.tooltip}</div>
+                `;
+                
+                untestedEvents.appendChild(eventEl);
+            });
+        }
+        
+        // イベントのアクティブ化（現在の週に基づいて）
+        function activateEvents() {
+            const currentWeek = state.currentWeek;
+            
+            // テスト有りのイベント
+            const testedEventEls = testedEvents.querySelectorAll('.event');
+            events.tested.forEach((event, index) => {
+                if (event.week <= state.tested.progress) {
+                    testedEventEls[index].classList.add('visible');
+                    
+                    // 統計の更新
+                    switch (event.type) {
+                        case 'feature':
+                            if (!testedEventEls[index].classList.contains('counted')) {
+                                state.tested.features++;
+                                testedFeaturesEl.textContent = state.tested.features + '個';
+                                testedEventEls[index].classList.add('counted');
+                                addLogEntry(`テスト有り: ${event.name}の開発を開始`, 'tested');
+                            }
+                            break;
+                        case 'test':
+                            if (!testedEventEls[index].classList.contains('counted')) {
+                                state.tested.tests++;
+                                testedTestsEl.textContent = state.tested.tests + '回';
+                                testedEventEls[index].classList.add('counted');
+                                addLogEntry(`テスト有り: ${event.name}を実施`, 'tested');
+                            }
+                            break;
+                        case 'bug':
+                            if (!testedEventEls[index].classList.contains('counted')) {
+                                state.tested.bugs++;
+                                testedBugsEl.textContent = state.tested.bugs + '個';
+                                testedEventEls[index].classList.add('counted');
+                                addLogEntry(`テスト有り: ${event.tooltip}`, 'tested');
+                            }
+                            break;
+                        case 'bugfix':
+                            if (!testedEventEls[index].classList.contains('counted')) {
+                                state.tested.fixes++;
+                                testedFixesEl.textContent = state.tested.fixes + '個';
+                                testedEventEls[index].classList.add('counted');
+                                addLogEntry(`テスト有り: ${event.tooltip}`, 'tested');
+                            }
+                            break;
+                        case 'complete':
+                            if (!state.tested.completed && state.tested.progress >= event.week) {
+                                state.tested.completed = true;
+                                addLogEntry(`テスト有り: プロジェクト完了！(${currentWeek.toFixed(1)}週目で${event.tooltip})`, 'tested');
+                                
+                                // 両方完了した場合のメッセージ
+                                if (state.tested.completed && state.untested.completed) {
+                                    showCompletionMessage();
+                                }
+                            }
+                            break;
+                    }
+                }
+            });
+            
+            // テスト無しのイベント
+            const untestedEventEls = untestedEvents.querySelectorAll('.event');
+            events.untested.forEach((event, index) => {
+                // イベントが進捗に基づいて発生する（遅延の影響を受ける）
+                if (event.week <= state.untested.progress) {
+                    untestedEventEls[index].classList.add('visible');
+                    
+                    // 統計の更新
+                    switch (event.type) {
+                        case 'feature':
+                            if (!untestedEventEls[index].classList.contains('counted')) {
+                                state.untested.features++;
+                                untestedFeaturesEl.textContent = state.untested.features + '個';
+                                untestedEventEls[index].classList.add('counted');
+                                addLogEntry(`テスト無し: ${event.name}の開発を開始`, 'untested');
+                            }
+                            break;
+                        case 'test':
+                            if (!untestedEventEls[index].classList.contains('counted')) {
+                                state.untested.tests++;
+                                untestedTestsEl.textContent = state.untested.tests + '回';
+                                untestedEventEls[index].classList.add('counted');
+                                addLogEntry(`テスト無し: ${event.name}を実施`, 'untested');
+                            }
+                            break;
+                        case 'bug':
+                            if (!untestedEventEls[index].classList.contains('counted')) {
+                                state.untested.bugs++;
+                                state.untested.activeBugs++; // アクティブなバグを増やす
+                                untestedBugsEl.textContent = state.untested.bugs + '個';
+                                untestedEventEls[index].classList.add('counted');
+                                
+                                // バグの重大度に応じたメッセージ
+                                let severityText = "";
+                                if (event.severity > 2) {
+                                    severityText = "【重大】";
+                                } else if (event.severity > 1) {
+                                    severityText = "【深刻】";
+                                }
+                                
+                                addLogEntry(`テスト無し: ${severityText}${event.tooltip}！開発が遅延し始めます`, 'untested');
+                                
+                                // バグの重大度に応じてイベント要素のスタイルを変更
+                                if (event.severity > 1) {
+                                    untestedEventEls[index].style.transform = "scale(1.2)";
+                                    untestedEventEls[index].style.boxShadow = "0 0 10px red";
+                                }
+                            }
+                            break;
+                        case 'bugfix':
+                            if (!untestedEventEls[index].classList.contains('counted')) {
+                                state.untested.fixes++;
+                                state.untested.activeBugs--; // アクティブなバグを減らす
+                                untestedFixesEl.textContent = state.untested.fixes + '個';
+                                untestedEventEls[index].classList.add('counted');
+                                
+                                // 遅延があるバグ修正の場合
+                                if (event.delay && event.delay > 0) {
+                                    addLogEntry(`テスト無し: ${event.tooltip}。本来の予定よりも${event.delay}週間余計にかかりました`, 'untested');
+                                } else {
+                                    addLogEntry(`テスト無し: ${event.tooltip}`, 'untested');
+                                }
+                            }
+                            break;
+                        case 'complete':
+                            if (!state.untested.completed && state.untested.progress >= event.week) {
+                                state.untested.completed = true;
+                                addLogEntry(`テスト無し: プロジェクト完了！(${currentWeek.toFixed(1)}週目で${event.tooltip})`, 'untested');
+                                
+                                // 両方完了した場合のメッセージ
+                                if (state.tested.completed && state.untested.completed) {
+                                    showCompletionMessage();
+                                }
+                            }
+                            break;
+                    }
+                }
+            });
+        }
+        
+        // ログエントリを追加
+        function addLogEntry(message, type) {
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry`;
+            
+            const weekText = `${state.currentWeek.toFixed(1)}週目`;
+            
+            logEntry.innerHTML = `
+                <span class="log-time">${weekText}:</span> 
+                <span class="log-${type}">${message}</span>
+            `;
+            
+            eventLog.insertBefore(logEntry, eventLog.firstChild);
+            
+            // スクロールを一番上に
+            eventLog.scrollTop = 0;
+        }
+        
+        // 完了メッセージを表示
+        function showCompletionMessage() {
+            const testedWeeks = events.tested[events.tested.length - 1].week;
+            const untestedWeeks = events.untested[events.untested.length - 1].week;
+            const weekDiff = Math.abs(untestedWeeks - testedWeeks);
+            
+            let message = `
+                <h3>開発完了！</h3>
+                <p>テスト有りの開発は ${testedWeeks} 週で完了しました。</p>
+                <p>テスト無しの開発は ${untestedWeeks} 週かかりました。</p>
+                <p>時間差: ${weekDiff.toFixed(1)} 週</p>
+                <p>テスト有りの開発では、早期にバグを発見・修正できるため、最終的な開発期間が短縮されます。</p>
+                <p>テスト無しの開発では、本番環境でのバグ発見とその対応に多くの時間を費やし、品質も低下します。</p>
+            `;
+            
+            messageEl.innerHTML = message;
+        }
+        
+        // バグの重大度に基づいて遅延係数を計算
+        function calculateDelayFactor() {
+            // 現在アクティブなバグの数と重大度に基づいて遅延係数を計算
+            let delayFactor = 1;
+            
+            if (state.untested.activeBugs > 0) {
+                // バグの数に応じて遅延を増加
+                delayFactor = 1 + (state.untested.activeBugs * 0.5);
+                
+                // 警告レベルの更新
+                state.warningLevel = Math.min(0.7, state.untested.activeBugs * 0.15);
+                untestedWarning.style.opacity = state.warningLevel;
+            } else {
+                state.warningLevel = 0;
+                untestedWarning.style.opacity = 0;
+            }
+            
+            return delayFactor;
+        }
+        
+        // 時間を進める関数
+        function advanceTime() {
+            // テスト有りの開発は通常通り進む
+            state.tested.progress += 0.1;
+            
+            // テスト無しの開発は遅延係数に基づいて進む
+            state.untested.delayFactor = calculateDelayFactor();
+            state.untested.progress += 0.1 / state.untested.delayFactor;
+            
+            // 現在の週を更新
+            state.currentWeek += 0.1;
+            
+            // 進捗率の更新（パーセンテージ）
+            const testedProgress_percent = (state.tested.progress / state.totalWeeks) * 100;
+            const untestedProgress_percent = (state.untested.progress / state.totalWeeks) * 100;
+            
+            testedProgress.style.width = `${testedProgress_percent}%`;
+            untestedProgress.style.width = `${untestedProgress_percent}%`;
+            
+            // 時間表示の更新
+            testedTimeEl.textContent = state.currentWeek.toFixed(1) + '週';
+            untestedTimeEl.textContent = state.currentWeek.toFixed(1) + '週';
+            
+            // 実際の進捗を表示
+            if (state.untested.delayFactor > 1) {
+                // 遅延メッセージを追加
+                if (state.currentWeek % 1 < 0.1) { // 1週間ごとにメッセージを表示
+                    const weeksBehind = (state.tested.progress - state.untested.progress).toFixed(1);
+                    if (weeksBehind > 0.5) {
+                        addLogEntry(`テスト無しの開発は実質的に ${weeksBehind} 週間遅れています（バグの影響）`, 'untested');
+                    }
+                }
+            }
+            
+            // イベントのアクティブ化
+            activateEvents();
+            
+            // 終了条件
+            if (state.currentWeek >= state.totalWeeks) {
+                pauseSimulation();
+                resetButton.disabled = false;
+            }
+        }
+        
+        // シミュレーションの開始
+        function startSimulation() {
+            if (!state.isRunning) {
+                state.isRunning = true;
+                state.interval = setInterval(advanceTime, 100);
+                
+                startButton.disabled = true;
+                pauseButton.disabled = false;
+                resetButton.disabled = true;
+                
+                messageEl.textContent = "シミュレーションが進行中です...";
+            }
+        }
+        
+        // シミュレーションの一時停止
+        function pauseSimulation() {
+            if (state.isRunning) {
+                state.isRunning = false;
+                clearInterval(state.interval);
+                
+                startButton.disabled = false;
+                pauseButton.disabled = true;
+                
+                messageEl.textContent = "シミュレーションが一時停止中です。「開始」ボタンで再開できます。";
+            }
+        }
+        
+        // シミュレーションのリセット
+        function resetSimulation() {
+            state.isRunning = false;
+            clearInterval(state.interval);
+            
+            state.currentWeek = 0;
+            state.tested = {
+                features: 0,
+                tests: 0,
+                bugs: 0,
+                fixes: 0,
+                completed: false
+            };
+            state.untested = {
+                features: 0,
+                tests: 0,
+                bugs: 0,
+                fixes: 0,
+                completed: false
+            };
+            
+            // 進捗バーをリセット
+            testedProgress.style.width = '0%';
+            untestedProgress.style.width = '0%';
+            
+            // 表示をリセット
+            testedTimeEl.textContent = '0週';
+            untestedTimeEl.textContent = '0週';
+            testedFeaturesEl.textContent = '0個';
+            untestedFeaturesEl.textContent = '0個';
+            testedTestsEl.textContent = '0回';
+            untestedTestsEl.textContent = '0回';
+            testedBugsEl.textContent = '0個';
+            untestedBugsEl.textContent = '0個';
+            testedFixesEl.textContent = '0個';
+            untestedFixesEl.textContent = '0個';
+            
+            // イベントをリセット
+            const allEvents = document.querySelectorAll('.event');
+            allEvents.forEach(event => {
+                event.classList.remove('visible');
+                event.classList.remove('counted');
+            });
+            
+            // ログをクリア
+            eventLog.innerHTML = '<h3>開発ログ</h3>';
+            
+            // ボタン状態のリセット
+            startButton.disabled = false;
+            pauseButton.disabled = true;
+            resetButton.disabled = true;
+            
+            messageEl.textContent = "「開始」ボタンを押して、開発の進行を見てみましょう。";
+        }
+        
+        // イベントリスナー
+        startButton.addEventListener('click', startSimulation);
+        pauseButton.addEventListener('click', pauseSimulation);
+        resetButton.addEventListener('click', resetSimulation);
+        
+        // 初期化
+        createWeekMarkers();
+        createEvents();
+    </script>
+</body>
+</html>
