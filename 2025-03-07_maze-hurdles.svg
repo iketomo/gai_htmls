@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600">
+  <!-- Background -->
+  <defs>
+    <linearGradient id="mazeGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e8f5e9;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#c8e6c9;stop-opacity:1" />
+    </linearGradient>
+    <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="3" dy="3" stdDeviation="3" flood-opacity="0.3" />
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1000" height="600" fill="url(#mazeGradient)" />
+  
+  <!-- Title -->
+  <text x="500" y="50" text-anchor="middle" font-family="Arial" font-size="28" font-weight="bold">Cursorから本番リリースまでの迷路</text>
+  <text x="500" y="85" text-anchor="middle" font-family="Arial" font-size="20">開発からリリースまでの複雑な道のり</text>
+  
+  <!-- Maze outline -->
+  <rect x="100" y="120" width="800" height="420" fill="white" stroke="#333" stroke-width="3" filter="url(#dropShadow)" />
+  
+  <!-- Maze walls -->
+  <!-- Horizontal walls -->
+  <line x1="100" y1="200" x2="700" y2="200" stroke="#333" stroke-width="8" />
+  <line x1="200" y1="280" x2="900" y2="280" stroke="#333" stroke-width="8" />
+  <line x1="100" y1="360" x2="800" y2="360" stroke="#333" stroke-width="8" />
+  <line x1="200" y1="440" x2="900" y2="440" stroke="#333" stroke-width="8" />
+  
+  <!-- Vertical walls -->
+  <line x1="200" y1="120" x2="200" y2="280" stroke="#333" stroke-width="8" />
+  <line x1="300" y1="200" x2="300" y2="440" stroke="#333" stroke-width="8" />
+  <line x1="400" y1="120" x2="400" y2="360" stroke="#333" stroke-width="8" />
+  <line x1="500" y1="280" x2="500" y2="540" stroke="#333" stroke-width="8" />
+  <line x1="600" y1="120" x2="600" y2="280" stroke="#333" stroke-width="8" />
+  <line x1="700" y1="200" x2="700" y2="440" stroke="#333" stroke-width="8" />
+  <line x1="800" y1="120" x2="800" y2="360" stroke="#333" stroke-width="8" />
+  
+  <!-- Path through maze -->
+  <path d="M140,540 L140,380 L480,380 L480,320 L240,320 L240,160 L540,160 L540,260 L740,260 L740,160 L840,160 L840,240 L900,240" 
+        stroke="#E91E63" stroke-width="5" stroke-dasharray="10,5" fill="none" />
+  
+  <!-- Start point -->
+  <circle cx="140" cy="540" r="20" fill="#4CAF50" />
+  <text x="140" y="580" text-anchor="middle" font-family="Arial" font-size="16" font-weight="bold">Cursor開発</text>
+  
+  <!-- End point -->
+  <circle cx="900" cy="240" r="20" fill="#E91E63" />
+  <text x="900" y="200" text-anchor="middle" font-family="Arial" font-size="16" font-weight="bold">リリース</text>
+  
+  <!-- Challenge Badges -->
+  <!-- Development & Deployment Badge -->
+  <rect x="140" y="420" width="120" height="40" rx="20" ry="20" fill="#2196F3" filter="url(#dropShadow)" />
+  <text x="200" y="445" text-anchor="middle" font-family="Arial" font-size="14" fill="white" font-weight="bold">開発からデプロイ</text>
+  
+  <!-- Infrastructure Badge -->
+  <rect x="350" y="320" width="100" height="40" rx="20" ry="20" fill="#FF9800" filter="url(#dropShadow)" />
+  <text x="400" y="345" text-anchor="middle" font-family="Arial" font-size="14" fill="white" font-weight="bold">インフラ関連</text>
+  
+  <!-- Security Badge -->
+  <rect x="600" y="220" width="100" height="40" rx="20" ry="20" fill="#F44336" filter="url(#dropShadow)" />
+  <text x="650" y="245" text-anchor="middle" font-family="Arial" font-size="14" fill="white" font-weight="bold">セキュリティ関連</text>
+  
+  <!-- Operations Badge -->
+  <rect x="780" y="180" width="100" height="40" rx="20" ry="20" fill="#9C27B0" filter="url(#dropShadow)" />
+  <text x="830" y="205" text-anchor="middle" font-family="Arial" font-size="14" fill="white" font-weight="bold">運用関連</text>
+  
+  <!-- Legend -->
+  <rect x="120" y="140" width="60" height="25" rx="12" ry="12" fill="#2196F3" />
+  <rect x="120" y="170" width="60" height="25" rx="12" ry="12" fill="#FF9800" />
+  <rect x="120" y="200" width="60" height="25" rx="12" ry="12" fill="#F44336" />
+  <rect x="120" y="230" width="60" height="25" rx="12" ry="12" fill="#9C27B0" />
+  
+  <text x="190" y="157" text-anchor="start" font-family="Arial" font-size="14">開発からデプロイ</text>
+  <text x="190" y="187" text-anchor="start" font-family="Arial" font-size="14">インフラ関連</text>
+  <text x="190" y="217" text-anchor="start" font-family="Arial" font-size="14">セキュリティ関連</text>
+  <text x="190" y="247" text-anchor="start" font-family="Arial" font-size="14">運用関連</text>
+</svg>

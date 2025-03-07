@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600">
+  <!-- Background -->
+  <defs>
+    <linearGradient id="skyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#a7c5ff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e6f0ff;stop-opacity:1" />
+    </linearGradient>
+    <filter id="dropShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="3" dy="3" stdDeviation="3" flood-opacity="0.3" />
+    </filter>
+  </defs>
+  
+  <!-- Sky background -->
+  <rect width="1000" height="600" fill="url(#skyGradient)" />
+  
+  <!-- Ground -->
+  <path d="M0,500 Q250,470 500,520 T1000,480 L1000,600 L0,600 Z" fill="#8bc34a" />
+  
+  <!-- Mountain path -->
+  <path d="M50,500 C100,490 150,450 200,480 C250,510 300,400 350,420 C400,440 450,380 500,390 C550,400 600,350 650,340 C700,330 750,300 800,290 C850,280 900,240 950,200" 
+        stroke="#b5651d" stroke-width="20" fill="none" />
+  
+  <!-- Start point - Cursor Development -->
+  <circle cx="50" cy="500" r="25" fill="#4CAF50" />
+  <text x="50" y="540" text-anchor="middle" font-family="Arial" font-size="18" font-weight="bold">Cursor開発</text>
+  
+  <!-- Midpoint - Web Service -->
+  <circle cx="800" cy="290" r="25" fill="#FF9800" />
+  <text x="800" y="260" text-anchor="middle" font-family="Arial" font-size="18" font-weight="bold">Webサービス公開</text>
+  
+  <!-- End point - Release -->
+  <circle cx="950" cy="200" r="25" fill="#F44336" />
+  <text x="950" y="170" text-anchor="middle" font-family="Arial" font-size="18" font-weight="bold">リリース</text>
+  
+  <!-- Hurdle 1: Development to Deployment -->
+  <rect x="160" y="400" width="140" height="160" rx="10" fill="#f5f5f5" stroke="#2196F3" stroke-width="3" filter="url(#dropShadow)" />
+  <text x="230" y="430" text-anchor="middle" font-family="Arial" font-size="18" font-weight="bold" fill="#2196F3">開発からデプロイ</text>
+  <line x1="175" y1="445" x2="285" y2="445" stroke="#2196F3" stroke-width="2" />
+  <text x="230" y="470" text-anchor="middle" font-family="Arial" font-size="14">・テスト環境の整備</text>
+  <text x="230" y="495" text-anchor="middle" font-family="Arial" font-size="14">・デプロイメントパイプライン</text>
+  <text x="230" y="520" text-anchor="middle" font-family="Arial" font-size="14">・環境差異への対応</text>
+  <text x="230" y="545" text-anchor="middle" font-family="Arial" font-size="14">・依存関係の管理</text>
+
+  <!-- Hurdle 2: Infrastructure -->
+  <rect x="350" y="320" width="140" height="160" rx="10" fill="#f5f5f5" stroke="#FF9800" stroke-width="3" filter="url(#dropShadow)" />
+  <text x="420" y="350" text-anchor="middle" font-family="Arial" font-size="18" font-weight="bold" fill="#FF9800">インフラ関連</text>
+  <line x1="365" y1="365" x2="475" y2="365" stroke="#FF9800" stroke-width="2" />
+  <text x="420" y="390" text-anchor="middle" font-family="Arial" font-size="14">・サーバー環境の構築</text>
+  <text x="420" y="415" text-anchor="middle" font-family="Arial" font-size="14">・スケーラビリティの確保</text>
+  <text x="420" y="440" text-anchor="middle" font-family="Arial" font-size="14">・データベース設計</text>
+  <text x="420" y="465" text-anchor="middle" font-family="Arial" font-size="14">・ドメイン取得とDNS設定</text>
+  
+  <!-- Hurdle 3: Security -->
+  <rect x="550" y="250" width="140" height="160" rx="10" fill="#f5f5f5" stroke="#F44336" stroke-width="3" filter="url(#dropShadow)" />
+  <text x="620" y="280" text-anchor="middle" font-family="Arial" font-size="18" font-weight="bold" fill="#F44336">セキュリティ関連</text>
+  <line x1="565" y1="295" x2="675" y2="295" stroke="#F44336" stroke-width="2" />
+  <text x="620" y="320" text-anchor="middle" font-family="Arial" font-size="14">・脆弱性対策</text>
+  <text x="620" y="345" text-anchor="middle" font-family="Arial" font-size="14">・データ保護</text>
+  <text x="620" y="370" text-anchor="middle" font-family="Arial" font-size="14">・認証・認可システム</text>
+  <text x="620" y="395" text-anchor="middle" font-family="Arial" font-size="14">・コンプライアンス対応</text>
+  
+  <!-- Hurdle 4: Operations -->
+  <rect x="730" y="200" width="140" height="160" rx="10" fill="#f5f5f5" stroke="#9C27B0" stroke-width="3" filter="url(#dropShadow)" />
+  <text x="800" y="230" text-anchor="middle" font-family="Arial" font-size="18" font-weight="bold" fill="#9C27B0">運用関連</text>
+  <line x1="745" y1="245" x2="855" y2="245" stroke="#9C27B0" stroke-width="2" />
+  <text x="800" y="270" text-anchor="middle" font-family="Arial" font-size="14">・監視システムの構築</text>
+  <text x="800" y="295" text-anchor="middle" font-family="Arial" font-size="14">・ロギングの実装</text>
+  <text x="800" y="320" text-anchor="middle" font-family="Arial" font-size="14">・バックアップ体制</text>
+  <text x="800" y="345" text-anchor="middle" font-family="Arial" font-size="14">・障害対応プラン</text>
+  
+  <!-- Mountain peaks in background -->
+  <path d="M0,350 L150,180 L300,280 L450,150 L600,220 L750,130 L900,190 L1000,120 L1000,500 L0,500 Z" fill="#e0e0e0" opacity="0.3" />
+  
+  <!-- Clouds -->
+  <ellipse cx="150" cy="100" rx="60" ry="30" fill="white" opacity="0.7" />
+  <ellipse cx="180" cy="90" rx="70" ry="40" fill="white" opacity="0.7" />
+  <ellipse cx="200" cy="110" rx="50" ry="30" fill="white" opacity="0.7" />
+  
+  <ellipse cx="450" cy="80" rx="70" ry="35" fill="white" opacity="0.7" />
+  <ellipse cx="490" cy="70" rx="60" ry="40" fill="white" opacity="0.7" />
+  <ellipse cx="520" cy="90" rx="50" ry="30" fill="white" opacity="0.7" />
+  
+  <ellipse cx="750" cy="120" rx="60" ry="30" fill="white" opacity="0.7" />
+  <ellipse cx="780" cy="110" rx="70" ry="40" fill="white" opacity="0.7" />
+  <ellipse cx="810" cy="130" rx="50" ry="30" fill="white" opacity="0.7" />
+  
+  <!-- Title -->
+  <text x="500" y="50" text-anchor="middle" font-family="Arial" font-size="28" font-weight="bold">Cursorで開発したWebサービスの公開への道のり</text>
+  <text x="500" y="85" text-anchor="middle" font-family="Arial" font-size="20">開発から公開までの高いハードル</text>
+</svg>
