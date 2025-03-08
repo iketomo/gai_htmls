@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>開発フェーズタイムライン：ReplitとCursorの使い分け</title>
+    <style>
+        :root {
+            --replit-color: #56a2f9;
+            --cursor-color: #6c47ff;
+            --neutral-color: #f2f2f2;
+            --text-color: #333;
+            --highlight-color: #ff9800;
+            --success-color: #4caf50;
+            --border-radius: 8px;
+            --transition-time: 0.3s;
+        }
+        
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #f9f9f9;
+            color: var(--text-color);
+            line-height: 1.6;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .description {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            color: #666;
+        }
+        
+        .control-panel {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        
+        button {
+            padding: 10px 20px;
+            background-color: #4a4a4a;
+            color: white;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color var(--transition-time);
+        }
+        
+        button:hover {
+            background-color: #666;
+        }
+        
+        button.active {
+            background-color: var(--highlight-color);
+        }
+        
+        .timeline-container {
+            position: relative;
+            margin: 40px 0;
+        }
+        
+        .timeline {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            margin-bottom: 50px;
+        }
+        
+        .timeline::before {
+            content: '';
+            position: absolute;
+            top: 35px;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background-color: #ddd;
+            z-index: 1;
+        }
+        
+        .phase {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            flex: 1;
+            margin: 0 5px;
+            cursor: pointer;
+            transition: transform var(--transition-time);
+        }
+        
+        .phase:hover {
+            transform: translateY(-5px);
+        }
+        
+        .phase-marker {
+            width: 50px;
+            height: 50px;
+            line-height: 50px;
+            background-color: var(--neutral-color);
+            border-radius: 50%;
+            margin: 0 auto 10px;
+            font-weight: bold;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all var(--transition-time);
+            border: 2px solid #ddd;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .phase.active .phase-marker {
+            transform: scale(1.2);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .phase-title {
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        .tool-indicator {
+            font-size: 0.8rem;
+            padding: 2px 8px;
+            border-radius: 12px;
+            display: inline-block;
+            color: white;
+            margin-bottom: 5px;
+        }
+        
+        .replit {
+            background-color: var(--replit-color);
+        }
+        
+        .cursor {
+            background-color: var(--cursor-color);
+        }
+        
+        .details-container {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin-top: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            min-height: 400px;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .details-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .details-title {
+            font-size: 1.5rem;
+            margin-right: 15px;
+        }
+        
+        .details-tool {
+            padding: 5px 15px;
+            color: white;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        
+        .details-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            flex: 1;
+        }
+        
+        .details-column {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .feature-list {
+            list-style-type: none;
+        }
+        
+        .feature-item {
+            margin-bottom: 15px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: var(--border-radius);
+            border-left: 4px solid var(--highlight-color);
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        
+        .example-container {
+            background-color: #f5f5f5;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            margin-top: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .code-example {
+            font-family: monospace;
+            white-space: pre;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            padding: 10px;
+            background-color: #282c34;
+            color: #abb2bf;
+            border-radius: 4px;
+        }
+        
+        .stats-container {
+            margin-top: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .stat-card {
+            flex: 1;
+            min-width: 150px;
+            background-color: white;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            text-align: center;
+            border-top: 3px solid var(--highlight-color);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 10px 0;
+            color: var(--highlight-color);
+        }
+        
+        .log-container {
+            margin-top: 30px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .log-title {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .log-entries {
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9rem;
+        }
+        
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        
+        .log-entry.info {
+            background-color: rgba(86, 162, 249, 0.1);
+            border-left: 3px solid var(--replit-color);
+        }
+        
+        .log-entry.success {
+            background-color: rgba(76, 175, 80, 0.1);
+            border-left: 3px solid var(--success-color);
+        }
+        
+        .summary-container {
+            margin-top: 30px;
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .summary-title {
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+        }
+        
+        .summary-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .summary-card {
+            flex: 1;
+            min-width: 250px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+        
+        .summary-card h4 {
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 2px solid var(--highlight-color);
+        }
+        
+        footer {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #777;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes highlight {
+            0% { background-color: rgba(255, 152, 0, 0.3); }
+            100% { background-color: transparent; }
+        }
+        
+        .highlight {
+            animation: highlight 1.5s ease-in-out;
+        }
+        
+        @media (max-width: 768px) {
+            .timeline {
+                flex-direction: column;
+                margin-left: 20px;
+            }
+            
+            .timeline::before {
+                top: 0;
+                left: 25px;
+                width: 4px;
+                height: 100%;
+            }
+            
+            .phase {
+                display: flex;
+                align-items: center;
+                text-align: left;
+                margin-bottom: 20px;
+            }
+            
+            .phase-marker {
+                margin: 0 20px 0 0;
+            }
+            
+            .details-content {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>開発フェーズタイムライン：ReplitとCursorの使い分け</h1>
+        <p class="description">非エンジニアの方がWebサービスを開発する際の各フェーズで、ReplitとCursorをどのように使い分けるべきかを視覚的に表現します。</p>
+    </header>
+
+    <div class="control-panel">
+        <button id="start-btn">スタート</button>
+        <button id="reset-btn">リセット</button>
+    </div>
+
+    <div class="timeline-container">
+        <div class="timeline" id="timeline">
+            <!-- フェーズは動的に生成されます -->
+        </div>
+    </div>
+
+    <div class="details-container" id="details-container">
+        <div class="details-header">
+            <h2 class="details-title" id="details-title">フェーズを選択してください</h2>
+            <span class="details-tool" id="details-tool" style="display: none;"></span>
+        </div>
+        <div class="details-content" id="details-content">
+            <p>左上の「スタート」ボタンをクリックするか、上のタイムラインから開発フェーズを選択してください。各フェーズでの最適なツールとその理由が表示されます。</p>
+        </div>
+    </div>
+
+    <div class="stats-container" id="stats-container">
+        <!-- 統計情報は動的に生成されます -->
+    </div>
+
+    <div class="log-container">
+        <div class="log-title">
+            <span>アクティビティログ</span>
+            <button id="clear-log-btn">クリア</button>
+        </div>
+        <div class="log-entries" id="log-entries">
+            <!-- ログは動的に生成されます -->
+        </div>
+    </div>
+
+    <div class="summary-container">
+        <h3 class="summary-title">ツール使い分けのサマリー</h3>
+        <div class="summary-content">
+            <div class="summary-card">
+                <h4>Replitの強み</h4>
+                <ul>
+                    <li>アイデアから動く土台を素早く作れる</li>
+                    <li>自然言語での指示だけでコード生成が可能</li>
+                    <li>コード環境のセットアップが不要</li>
+                    <li>大きな機能追加の実装に有効</li>
+                </ul>
+            </div>
+            <div class="summary-card">
+                <h4>Cursorの強み</h4>
+                <ul>
+                    <li>コードの詳細説明や理解促進に優れている</li>
+                    <li>ローカル環境での細かい修正や微調整に最適</li>
+                    <li>AIによるコード補完や改善提案が充実</li>
+                    <li>細部の品質向上に効果的</li>
+                </ul>
+            </div>
+            <div class="summary-card">
+                <h4>効率的な使い分け</h4>
+                <p>開発の各フェーズに応じて適切なツールを選択することで、非エンジニアでも効率的かつ質の高いWebサービス開発が可能になります。フェーズごとの最適なツール選択が、開発効率と品質を大きく左右します。</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2025 開発ツール活用ガイド | ReplitとCursorの最適な使い分け</p>
+    </footer>
+
+    <script>
+        // データ定義
+        const phases = [
+            {
+                id: 1,
+                title: "アイデア～初期開発",
+                tool: "replit",
+                description: "「作りたいもの」を自然言語で伝え、動く土台を作る段階",
+                features: [
+                    "自然言語での指示だけでコード生成",
+                    "環境構築なしですぐに開発開始可能",
+                    "コーディング知識がなくてもプロトタイプを作成できる",
+                    "多様なテンプレートから開発をスタート可能"
+                ],
+                example: `// Replit Agentにこのように指示
+「シンプルなToDoリストアプリを作りたい。
+項目を追加・削除できて、完了したらチェックを
+入れられるようにしたい。」
+
+// Replitが自動生成するコード例:
+const app = document.getElementById('app');
+const input = document.createElement('input');
+const addButton = document.createElement('button');
+const todoList = document.createElement('ul');
+
+addButton.textContent = '追加';
+app.appendChild(input);
+app.appendChild(addButton);
+app.appendChild(todoList);
+
+// 以下、機能実装コード...`,
+                stats: [
+                    { label: "スピード", value: "90%" },
+                    { label: "容易さ", value: "95%" },
+                    { label: "自動化度", value: "85%" },
+                    { label: "詳細度", value: "60%" }
+                ]
+            },
+            {
+                id: 2,
+                title: "コード理解・確認",
+                tool: "cursor",
+                description: "AIにコードの意味を教えてもらい、理解を深める段階",
+                features: [
+                    "コードの詳細な解説を受けられる",
+                    "シーケンス図などの視覚的説明が可能",
+                    "特定部分の動作原理を質問できる",
+                    "コードの品質やベストプラクティスの提案を受けられる"
+                ],
+                example: `// Cursorに質問
+「このコードの動作を説明してください。
+特にイベントリスナーの部分が理解できません。」
+
+// Cursorの回答例:
+このコードはToDoリストの機能を実装しています。
+
+1. addButtonのイベントリスナー:
+   - クリックされるとinputの値を取得
+   - 新しいli要素を作成してtodoListに追加
+   - チェックボックスも作成して追加
+
+2. checkboxのイベントリスナー:
+   - チェック状態が変わると親要素のスタイルを変更
+   - 完了項目には取り消し線を追加`,
+                stats: [
+                    { label: "理解度", value: "95%" },
+                    { label: "詳細度", value: "90%" },
+                    { label: "視覚化", value: "85%" },
+                    { label: "学習効果", value: "95%" }
+                ]
+            },
+            {
+                id: 3,
+                title: "細かな修正・改善",
+                tool: "cursor",
+                description: "AIに具体的な修正を指示して、仕上がりを良くする段階",
+                features: [
+                    "ローカル環境での直感的なコード編集",
+                    "AIによるコード補完と改善提案",
+                    "特定機能の変更点を詳細に指示可能",
+                    "リファクタリングの提案と実装支援"
+                ],
+                example: `// Cursorに指示
+「ToDoリストのデザインを改善したいです。
+各項目の間隔を広げて、完了した項目の色を
+グレーにしてください。」
+
+// Cursorが提案するコード:
+.todo-item {
+  margin-bottom: 12px;
+  padding: 8px;
+  border-radius: 4px;
+  transition: background-color 0.3s;
+}
+
+.todo-item.completed {
+  text-decoration: line-through;
+  background-color: #f5f5f5;
+  color: #888;
+}`,
+                stats: [
+                    { label: "精密さ", value: "95%" },
+                    { label: "カスタマイズ性", value: "90%" },
+                    { label: "効率性", value: "85%" },
+                    { label: "品質向上", value: "90%" }
+                ]
+            },
+            {
+                id: 4,
+                title: "機能追加（大きめ）",
+                tool: "replit",
+                description: "新しい大きな機能追加は再度Agentに依頼する段階",
+                features: [
+                    "大規模な機能追加を自然言語で指示可能",
+                    "既存コードを把握した上での機能追加",
+                    "複数の関連ファイルを一度に更新",
+                    "新しいライブラリやAPIの統合も支援"
+                ],
+                example: `// Replit Agentに指示
+「ToDoリストに期限設定機能を追加したいです。
+各タスクに日付を設定でき、期限が近いものは
+黄色、過ぎたものは赤色で表示するようにしてください。」
+
+// Replitが自動生成するコード例:
+function addTodo() {
+  const text = input.value;
+  const dueDate = datePicker.value;
+  
+  if (text) {
+    const todoItem = createTodoItem(text, dueDate);
+    todoList.appendChild(todoItem);
+    input.value = '';
+    datePicker.value = '';
+    updateDueDateColors();
+  }
+}
+
+function updateDueDateColors() {
+  // 日付に基づいて色を更新するコード
+  // ...
+}`,
+                stats: [
+                    { label: "完成度", value: "85%" },
+                    { label: "統合性", value: "80%" },
+                    { label: "スピード", value: "90%" },
+                    { label: "複雑性対応", value: "75%" }
+                ]
+            },
+            {
+                id: 5,
+                title: "微調整・改善（小さめ）",
+                tool: "cursor",
+                description: "ちょっとした修正や細かい要望はCursorが得意な段階",
+                features: [
+                    "細かな挙動やデザインの調整",
+                    "パフォーマンス最適化の提案と実装",
+                    "エッジケースへの対応",
+                    "コードのクリーンアップとドキュメント追加"
+                ],
+                example: `// Cursorに指示
+「期限切れのタスクが自動的に下に移動するようにしたいです。
+また、完了済みタスクと未完了タスクでソートする
+ボタンも追加してください。」
+
+// Cursorが提案するコード:
+function sortTodos(criteria) {
+  const items = Array.from(todoList.children);
+  
+  items.sort((a, b) => {
+    if (criteria === 'status') {
+      const aCompleted = a.querySelector('input').checked;
+      const bCompleted = b.querySelector('input').checked;
+      return aCompleted - bCompleted;
+    } else if (criteria === 'date') {
+      // 日付でのソート実装
+    }
+  });
+  
+  // リストを再構築
+  items.forEach(item => todoList.appendChild(item));
+}`,
+                stats: [
+                    { label: "精密さ", value: "95%" },
+                    { label: "応答性", value: "90%" },
+                    { label: "品質", value: "95%" },
+                    { label: "ユーザビリティ", value: "90%" }
+                ]
+            }
+        ];
+
+        // DOM要素の参照
+        const timelineEl = document.getElementById('timeline');
+        const detailsTitle = document.getElementById('details-title');
+        const detailsTool = document.getElementById('details-tool');
+        const detailsContent = document.getElementById('details-content');
+        const statsContainer = document.getElementById('stats-container');
+        const logEntries = document.getElementById('log-entries');
+        const startBtn = document.getElementById('start-btn');
+        const resetBtn = document.getElementById('reset-btn');
+        const clearLogBtn = document.getElementById('clear-log-btn');
+
+        // タイムラインの初期化
+        function initTimeline() {
+            timelineEl.innerHTML = '';
+            phases.forEach(phase => {
+                const phaseEl = document.createElement('div');
+                phaseEl.className = 'phase';
+                phaseEl.dataset.id = phase.id;
+                
+                const marker = document.createElement('div');
+                marker.className = 'phase-marker';
+                marker.textContent = phase.id;
+                
+                const title = document.createElement('div');
+                title.className = 'phase-title';
+                title.textContent = phase.title;
+                
+                const toolIndicator = document.createElement('div');
+                toolIndicator.className = `tool-indicator ${phase.tool}`;
+                toolIndicator.textContent = phase.tool === 'replit' ? 'Replit' : 'Cursor';
+                
+                phaseEl.appendChild(marker);
+                phaseEl.appendChild(title);
+                phaseEl.appendChild(toolIndicator);
+                timelineEl.appendChild(phaseEl);
+                
+                phaseEl.addEventListener('click', () => {
+                    selectPhase(phase);
+                });
+            });
+            
+            addLogEntry('タイムラインが初期化されました', 'info');
+        }
+
+        // フェーズ選択処理
+        function selectPhase(phase) {
+            // アクティブフェーズの更新
+            document.querySelectorAll('.phase').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.querySelector(`.phase[data-id="${phase.id}"]`).classList.add('active');
+            
+            // 詳細表示の更新
+            detailsTitle.textContent = phase.title;
+            detailsTool.textContent = phase.tool === 'replit' ? 'Replit' : 'Cursor';
+            detailsTool.className = `details-tool ${phase.tool}`;
+            detailsTool.style.display = 'inline-block';
+            
+            // 詳細コンテンツの生成
+            detailsContent.innerHTML = '';
+            
+            // 左カラム
+            const leftColumn = document.createElement('div');
+            leftColumn.className = 'details-column';
+            
+            const description = document.createElement('p');
+            description.textContent = phase.description;
+            description.style.marginBottom = '20px';
+            
+            const featuresTitle = document.createElement('h3');
+            featuresTitle.textContent = '主な特徴';
+            featuresTitle.style.marginBottom = '10px';
+            
+            const featuresList = document.createElement('ul');
+            featuresList.className = 'feature-list';
+            
+            phase.features.forEach((feature, index) => {
+                const featureItem = document.createElement('li');
+                featureItem.className = 'feature-item';
+                featureItem.textContent = feature;
+                featureItem.style.animationDelay = `${index * 0.1}s`;
+                featuresList.appendChild(featureItem);
+            });
+            
+            leftColumn.appendChild(description);
+            leftColumn.appendChild(featuresTitle);
+            leftColumn.appendChild(featuresList);
+            
+            // 右カラム
+            const rightColumn = document.createElement('div');
+            rightColumn.className = 'details-column';
+            
+            const exampleTitle = document.createElement('h3');
+            exampleTitle.textContent = '使用例';
+            exampleTitle.style.marginBottom = '10px';
+            
+            const exampleContainer = document.createElement('div');
+            exampleContainer.className = 'example-container';
+            
+            const codeExample = document.createElement('pre');
+            codeExample.className = 'code-example';
+            codeExample.textContent = phase.example;
+            
+            exampleContainer.appendChild(codeExample);
+            rightColumn.appendChild(exampleTitle);
+            rightColumn.appendChild(exampleContainer);
+            
+            // カラムの追加
+            detailsContent.appendChild(leftColumn);
+            detailsContent.appendChild(rightColumn);
+            
+            // 統計情報の更新
+            updateStats(phase);
+            
+            // ログの追加
+            addLogEntry(`フェーズ ${phase.id}: ${phase.title} が選択されました`, 'success');
+        }
+
+        // 統計情報の更新
+        function updateStats(phase) {
+            statsContainer.innerHTML = '';
+            
+            phase.stats.forEach(stat => {
+                const statCard = document.createElement('div');
+                statCard.className = 'stat-card';
+                
+                const statLabel = document.createElement('div');
+                statLabel.className = 'stat-label';
+                statLabel.textContent = stat.label;
+                
+                const statValue = document.createElement('div');
+                statValue.className = 'stat-value';
+                statValue.textContent = '0%';
+                
+                const statDescription = document.createElement('div');
+                statDescription.className = 'stat-description';
+                statDescription.textContent = phase.tool === 'replit' ? 'Replitの効率' : 'Cursorの効率';
+                
+                statCard.appendChild(statLabel);
+                statCard.appendChild(statValue);
+                statCard.appendChild(statDescription);
+                statsContainer.appendChild(statCard);
+                
+                // アニメーションで値を更新
+                animateValue(statValue, 0, parseInt(stat.value), 1500);
+            });
+        }
+
+        // 数値アニメーション
+        function animateValue(element, start, end, duration) {
+            let startTime = null;
+            
+            function animation(currentTime) {
+                if (startTime === null) startTime = currentTime;
+                const timeElapsed = currentTime - startTime;
+                const progress = Math.min(timeElapsed / duration, 1);
+                const value = Math.floor(progress * (end - start) + start);
+                
+                element.textContent = `${value}%`;
+                
+                if (timeElapsed < duration) {
+                    requestAnimationFrame(animation);
+                }
+            }
+            
+            requestAnimationFrame(animation);
+        }
+
+        // ログエントリの追加
+        function addLogEntry(message, type = 'info') {
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            
+            const timestamp = new Date().toLocaleTimeString();
+            entry.textContent = `[${timestamp}] ${message}`;
+            
+            logEntries.appendChild(entry);
+            logEntries.scrollTop = logEntries.scrollHeight;
+        }
+
+        // デモのスタート
+        function startDemo() {
+            let currentIndex = 0;
+            
+            function showNextPhase() {
+                if (currentIndex < phases.length) {
+                    selectPhase(phases[currentIndex]);
+                    currentIndex++;
+                    setTimeout(showNextPhase, 5000);
+                }
+            }
+            
+            addLogEntry('デモを開始します', 'info');
+            showNextPhase();
+        }
+
+        // デモのリセット
+        function resetDemo() {
+            document.querySelectorAll('.phase').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            detailsTitle.textContent = 'フェーズを選択してください';
+            detailsTool.style.display = 'none';
+            detailsContent.innerHTML = '<p>左上の「スタート」ボタンをクリックするか、上のタイムラインから開発フェーズを選択してください。各フェーズでの最適なツールとその理由が表示されます。</p>';
+            statsContainer.innerHTML = '';
+            
+            addLogEntry('デモがリセットされました', 'info');
+        }
+
+        // ログのクリア
+        function clearLog() {
+            logEntries.innerHTML = '';
+            addLogEntry('ログがクリアされました', 'info');
+        }
+
+        // イベントリスナーの設定
+        startBtn.addEventListener('click', startDemo);
+        resetBtn.addEventListener('click', resetDemo);
+        clearLogBtn.addEventListener('click', clearLog);
+
+        // 初期化
+        window.addEventListener('DOMContentLoaded', () => {
+            initTimeline();
+            addLogEntry('アプリケーションが読み込まれました', 'info');
+        });
+    </script>
+</body>
+</html>
