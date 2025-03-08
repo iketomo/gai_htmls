@@ -7,6 +7,7 @@
 - [2025-03-07_development-timeline.html](./2025-03-07_development-timeline.html)
 - [2025-03-07_maze-hurdles.svg](./2025-03-07_maze-hurdles.svg)
 - [2025-03-07_software-testing-building.html](./2025-03-07_software-testing-building.html)
+- [2025-03-08_development-phase-timeline.html](./2025-03-08_development-phase-timeline.html)
 - [ai-productivity-comparison.html](./ai-productivity-comparison.html)
 - [ai-traditional-program-demo.html](./ai-traditional-program-demo.html)
 - [ai_agent_demo.html](./ai_agent_demo.html)
