@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>非エンジニアのためのウェブ開発学習ロードマップ</title>
+  <style>
+    :root {
+      --primary-color: #4f46e5;
+      --primary-light: #818cf8;
+      --secondary-color: #10b981;
+      --tertiary-color: #f59e0b;
+      --dark-color: #1f2937;
+      --light-color: #f3f4f6;
+      --neutral-color: #6b7280;
+      --white: #ffffff;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    }
+    
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+    }
+    
+    body {
+      background-color: var(--light-color);
+      color: var(--dark-color);
+      line-height: 1.6;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background-color: var(--white);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+    
+    header {
+      background-color: var(--primary-color);
+      color: var(--white);
+      padding: 25px;
+      text-align: center;
+    }
+    
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 10px;
+    }
+    
+    .intro {
+      padding: 20px;
+      background-color: var(--light-color);
+      text-align: center;
+    }
+    
+    .roadmap {
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .step {
+      display: flex;
+      background-color: var(--white);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      transition: transform 0.3s ease;
+      cursor: pointer;
+      position: relative;
+    }
+    
+    .step:hover {
+      transform: translateY(-5px);
+    }
+    
+    .step-number {
+      background-color: var(--primary-color);
+      color: var(--white);
+      font-weight: bold;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      min-width: 60px;
+    }
+    
+    .step-content {
+      padding: 15px;
+      flex-grow: 1;
+    }
+    
+    .step-title {
+      font-weight: bold;
+      margin-bottom: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .step-title h3 {
+      font-size: 1.2rem;
+      color: var(--primary-color);
+    }
+    
+    .step-description {
+      color: var(--neutral-color);
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+    }
+    
+    .details {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.5s ease;
+      background-color: var(--light-color);
+      border-radius: 4px;
+    }
+    
+    .details-inner {
+      padding: 15px;
+    }
+    
+    .details h4 {
+      margin-bottom: 5px;
+      color: var(--secondary-color);
+    }
+    
+    .details ul {
+      margin-left: 20px;
+      margin-bottom: 15px;
+    }
+    
+    .details li {
+      margin-bottom: 5px;
+      font-size: 0.9rem;
+    }
+    
+    .expanded .details {
+      max-height: 500px;
+    }
+    
+    .toggle-btn {
+      background-color: var(--primary-light);
+      color: var(--white);
+      border: none;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s ease;
+    }
+    
+    .expanded .toggle-btn {
+      transform: rotate(45deg);
+    }
+    
+    .technologies {
+      display: flex;
+      gap: 5px;
+      margin-top: 5px;
+      flex-wrap: wrap;
+    }
+    
+    .tech-tag {
+      background-color: var(--light-color);
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 0.8rem;
+      color: var(--primary-color);
+      border: 1px solid var(--primary-light);
+    }
+    
+    .note {
+      background-color: var(--light-color);
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+      border-left: 4px solid var(--tertiary-color);
+    }
+    
+    .note h3 {
+      color: var(--tertiary-color);
+      margin-bottom: 5px;
+    }
+    
+    footer {
+      text-align: center;
+      padding: 20px;
+      background-color: var(--primary-color);
+      color: var(--white);
+    }
+    
+    @media (max-width: 768px) {
+      .step {
+        flex-direction: column;
+      }
+      
+      .step-number {
+        padding: 10px;
+        width: 100%;
+        min-width: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>非エンジニアのためのウェブ開発学習ロードマップ</h1>
+      <p>現代的なウェブアプリケーション開発技術を段階的に理解するためのガイド</p>
+    </header>
+    
+    <div class="intro">
+      <p>ウェブ開発の全体像を非エンジニアが理解するには、段階的に基礎から応用へと進むアプローチがおすすめです。<br>各ステップをクリックして詳細を確認してください。</p>
+    </div>
+    
+    <div class="roadmap">
+      <div class="step" id="step1">
+        <div class="step-number">1</div>
+        <div class="step-content">
+          <div class="step-title">
+            <h3>ウェブの基本概念を理解する</h3>
+            <button class="toggle-btn">+</button>
+          </div>
+          <div class="step-description">ウェブサイトとアプリケーションの違いや、フロントエンドとバックエンドの区別を学びます</div>
+          <div class="technologies">
+            <span class="tech-tag">ウェブ基礎</span>
+            <span class="tech-tag">HTTP</span>
+            <span class="tech-tag">クライアント/サーバー</span>
+          </div>
+          <div class="details">
+            <div class="details-inner">
+              <h4>学ぶこと:</h4>
+              <ul>
+                <li>ウェブサイトとウェブアプリケーションの違い</li>
+                <li>フロントエンド（見える部分）とバックエンド（裏側）の区別</li>
+                <li>データがどのように保存され、表示されるかの基本的な流れ</li>
+              </ul>
+              <h4>学習方法:</h4>
+              <ul>
+                <li>YouTubeの「ウェブ開発とは何か」といった入門動画</li>
+                <li>「ノンプログラマーのためのウェブの仕組み」系の記事や本</li>
+                <li>実際のウェブサイトを見ながら「この部分はフロントエンド、この機能はバックエンド」と区別する練習</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="step" id="step2">
+        <div class="step-number">2</div>
+        <div class="step-content">
+          <div class="step-title">
+            <h3>フロントエンドの基礎を学ぶ</h3>
+            <button class="toggle-btn">+</button>
+          </div>
+          <div class="step-description">ウェブページを構成する3つの基本技術について理解します</div>
+          <div class="technologies">
+            <span class="tech-tag">HTML</span>
+            <span class="tech-tag">CSS</span>
+            <span class="tech-tag">JavaScript</span>
+          </div>
+          <div class="details">
+            <div class="details-inner">
+              <h4>学ぶこと:</h4>
+              <ul>
+                <li>HTML: ウェブページの構造を作る言語</li>
+                <li>CSS: ウェブページの見た目を整える言語</li>
+                <li>JavaScript: ウェブページに動きをつける言語</li>
+              </ul>
+              <h4>学習方法:</h4>
+              <ul>
+                <li>「HTML/CSS入門」の無料チュートリアル（Codecademyなど）</li>
+                <li>簡単なページを自分で作ってみる（名刺や自己紹介ページなど）</li>
+                <li>既存のウェブサイトを見て「この部分はHTMLのどんな要素で、CSSでどう装飾されているか」を考える</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="step" id="step3">
+        <div class="step-number">3</div>
+        <div class="step-content">
+          <div class="step-title">
+            <h3>フロントエンドフレームワークを概念的に理解する</h3>
+            <button class="toggle-btn">+</button>
+          </div>
+          <div class="step-description">現代的なユーザーインターフェース構築の基本的な考え方を学びます</div>
+          <div class="technologies">
+            <span class="tech-tag">React</span>
+            <span class="tech-tag">Tailwind CSS</span>
+            <span class="tech-tag">Shadcn UI</span>
+          </div>
+          <div class="details">
+            <div class="details-inner">
+              <h4>学ぶこと:</h4>
+              <ul>
+                <li>Reactの基本的な考え方（コンポーネント指向）</li>
+                <li>UIライブラリ（Tailwind CSS、Shadcn UI）の役割</li>
+              </ul>
+              <h4>学習方法:</h4>
+              <ul>
+                <li>「React for non-developers」のような非開発者向け解説動画</li>
+                <li>Reactの公式チュートリアルの概念部分のみを読む</li>
+                <li>UIコンポーネントギャラリーを見て、部品の組み合わせでページが作られることを理解する</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="step" id="step4">
+        <div class="step-number">4</div>
+        <div class="step-content">
+          <div class="step-title">
+            <h3>バックエンドの概念を理解する</h3>
+            <button class="toggle-btn">+</button>
+          </div>
+          <div class="step-description">ユーザーからは見えない裏側の仕組みについて理解します</div>
+          <div class="technologies">
+            <span class="tech-tag">Express.js</span>
+            <span class="tech-tag">API</span>
+            <span class="tech-tag">サーバー</span>
+          </div>
+          <div class="details">
+            <div class="details-inner">
+              <h4>学ぶこと:</h4>
+              <ul>
+                <li>サーバーとは何か、APIとは何か</li>
+                <li>データベースの基本的な役割</li>
+                <li>クライアント-サーバーモデル</li>
+              </ul>
+              <h4>学習方法:</h4>
+              <ul>
+                <li>「バックエンドとは」の入門記事</li>
+                <li>Expressなどのフレームワークの概念説明（コードを理解する必要はない）</li>
+                <li>「レストランのたとえ」などの比喩を使った解説動画</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="step" id="step5">
+        <div class="step-number">5</div>
+        <div class="step-content">
+          <div class="step-title">
+            <h3>データベースの基本を理解する</h3>
+            <button class="toggle-btn">+</button>
+          </div>
+          <div class="step-description">データがどのように保存され、取り出されるかを学びます</div>
+          <div class="technologies">
+            <span class="tech-tag">PostgreSQL</span>
+            <span class="tech-tag">Drizzle ORM</span>
+            <span class="tech-tag">リレーショナルDB</span>
+          </div>
+          <div class="details">
+            <div class="details-inner">
+              <h4>学ぶこと:</h4>
+              <ul>
+                <li>データがどのように保存されるか</li>
+                <li>リレーショナルデータベース（PostgreSQLなど）の基本概念</li>
+                <li>ORMツール（Drizzleなど）の役割</li>
+              </ul>
+              <h4>学習方法:</h4>
+              <ul>
+                <li>データベース入門の図解記事</li>
+                <li>スプレッドシートでデータベースの概念を学ぶ（表の関連付けなど）</li>
+                <li>実際のアプリを使いながら「このデータはどこに保存されているか」を考える</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="step" id="step6">
+        <div class="step-number">6</div>
+        <div class="step-content">
+          <div class="step-title">
+            <h3>開発ツールと環境の概要を知る</h3>
+            <button class="toggle-btn">+</button>
+          </div>
+          <div class="step-description">より効率的に開発するための道具や仕組みについて学びます</div>
+          <div class="technologies">
+            <span class="tech-tag">Vite</span>
+            <span class="tech-tag">TypeScript</span>
+            <span class="tech-tag">Git</span>
+          </div>
+          <div class="details">
+            <div class="details-inner">
+              <h4>学ぶこと:</h4>
+              <ul>
+                <li>開発ツール（Viteなど）の役割</li>
+                <li>TypeScriptのようなツールがなぜ使われるのか</li>
+                <li>バージョン管理（Git）の基本概念</li>
+              </ul>
+              <h4>学習方法:</h4>
+              <ul>
+                <li>「モダンウェブ開発ツール」の概要記事</li>
+                <li>開発環境のデモ動画を見る</li>
+                <li>エンジニアの作業風景を観察する機会があれば、質問する</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="step" id="step7">
+        <div class="step-number">7</div>
+        <div class="step-content">
+          <div class="step-title">
+            <h3>実際のプロジェクトを通して全体像を把握する</h3>
+            <button class="toggle-btn">+</button>
+          </div>
+          <div class="step-description">学んだ知識を実際のプロジェクトに当てはめて全体像を理解します</div>
+          <div class="technologies">
+            <span class="tech-tag">実践知識</span>
+            <span class="tech-tag">プロジェクト管理</span>
+            <span class="tech-tag">開発プロセス</span>
+          </div>
+          <div class="details">
+            <div class="details-inner">
+              <h4>学ぶこと:</h4>
+              <ul>
+                <li>すべての部分がどのように連携するか</li>
+                <li>実際の開発プロセス</li>
+                <li>各技術の選択理由</li>
+              </ul>
+              <h4>学習方法:</h4>
+              <ul>
+                <li>オープンソースプロジェクトの紹介記事を読む</li>
+                <li>実際のプロジェクト進行を傍観する</li>
+                <li>エンジニアに開発プロセスを説明してもらう</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="note">
+        <h3>実践的な学習のアドバイス</h3>
+        <ul>
+          <li><strong>ハンズオン体験</strong>: できるだけ実際に触ってみる（ノーコードツールから始めるのもよい）</li>
+          <li><strong>視覚的な理解</strong>: 図解やフローチャートを活用する</li>
+          <li><strong>比喩を使う</strong>: 技術概念を日常的なものに例える（例：データベース＝整理された本棚）</li>
+          <li><strong>少しずつ進める</strong>: 一度にすべてを理解しようとせず、少しずつ深める</li>
+          <li><strong>プロジェクトの文脈で学ぶ</strong>: 特定のプロジェクトを例に取り、その中での各技術の役割を理解する</li>
+        </ul>
+      </div>
+    </div>
+    
+    <footer>
+      <p>この学習プランは、詳細なコーディングスキルではなく、技術の概念と役割の理解に焦点を当てています。</p>
+    </footer>
+  </div>
+  
+  <script>
+    document.querySelectorAll('.step').forEach(step => {
+      const toggleBtn = step.querySelector('.toggle-btn');
+      
+      toggleBtn.addEventListener('click', () => {
+        step.classList.toggle('expanded');
+      });
+    });
+  </script>
+</body>
+</html>
