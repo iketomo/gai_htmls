@@ -14,7 +14,7 @@ content = """
 file_list = [f for f in os.listdir('.') if f not in EXCLUDE_FILES]
 
 # ファイル名順にソート
-file_list.sort()
+file_list.sort(reverse=True)
 
 # READMEの内容を生成（作成日の記載は不要）
 for file in file_list:
