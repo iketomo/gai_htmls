@@ -1,0 +1,65 @@
+<?xml version="1.0"?>
+<svg width="1000" height="600" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" xmlns:se="http://svg-edit.googlecode.com">
+ <!-- Background -->
+ <!-- Workflow Container -->
+ <!-- Header for Workflow -->
+ <!-- Workflow Nodes -->
+ <!-- Start Node -->
+ <!-- Input Node -->
+ <!-- Condition Node -->
+ <!-- API Call Node -->
+ <!-- Output Node -->
+ <!-- End Node -->
+ <!-- Connection Arrows -->
+ <!-- Flow to Agent Node Arrow -->
+ <!-- AGENT NODE - Highlighted -->
+ <!-- Agent Node Title with Yellow Triangles -->
+ <!-- Agent Node Inner Components -->
+ <!-- Bidirectional Arrows within Agent Node -->
+ <!-- Agent Node Connections -->
+ <!-- Description Text -->
+ <!-- Arrow Definitions -->
+ <defs>
+  <marker id="arrowhead" markerHeight="7" markerWidth="10" orient="auto" refX="9" refY="3.5">
+   <polygon fill="#0047ab" id="svg_1" points="0 0, 10 3.5, 0 7"/>
+  </marker>
+ </defs>
+ <g class="layer">
+  <title>Layer 1</title>
+  <polyline fill="none" id="conn_svg_46" points="363.095 401 303.57 451 244.044 501" se:connector="svg_12 svg_3" stroke="#000000" stroke-width="5" transform="matrix(1 0 0 1 0 0)"/>
+  <rect fill="#f5f8fc" height="600" id="svg_2" width="1000" x="0" y="0"/>
+  <rect fill="white" height="400" id="svg_3" rx="10" ry="10" stroke="#c0c0c0" stroke-width="2" width="833.33" x="66.67" y="100"/>
+  <circle cx="140" cy="200" fill="#c4ddff" id="svg_6" r="30" stroke="#0047ab" stroke-width="2"/>
+  <text fill="#0047ab" font-family="Arial, sans-serif" font-size="14" font-weight="bold" id="svg_7" text-anchor="middle" x="140" y="205">開始</text>
+  <rect fill="#d9e6f2" height="60" id="svg_8" rx="10" ry="10" stroke="#0047ab" stroke-width="2" width="100" x="90" y="270"/>
+  <text fill="#0047ab" font-family="Arial, sans-serif" font-size="14" font-weight="bold" id="svg_9" text-anchor="middle" x="140" y="305">入力処理</text>
+  <path d="m240,340l50,30l-50,30l-50,-30l50,-30z" fill="#d9e6f2" id="svg_10" stroke="#0047ab" stroke-width="2"/>
+  <text fill="#0047ab" font-family="Arial, sans-serif" font-size="14" font-weight="bold" id="svg_11" text-anchor="middle" x="240" y="375">条件分岐</text>
+  <rect fill="#d9e6f2" height="60" id="svg_12" rx="10" ry="10" stroke="#0047ab" stroke-width="2" width="100" x="350" y="340"/>
+  <text fill="#0047ab" font-family="Arial, sans-serif" font-size="14" font-weight="bold" id="svg_13" text-anchor="middle" transform="matrix(1 0 0 1 0 0)" x="402.67" y="373.67">通常の処理</text>
+  <rect fill="#d9e6f2" height="60" id="svg_15" rx="10" ry="10" stroke="#0047ab" stroke-width="2" transform="matrix(1 0 0 1 0 0)" width="100" x="680" y="340"/>
+  <text fill="#0047ab" font-family="Arial, sans-serif" font-size="14" font-weight="bold" id="svg_16" text-anchor="middle" transform="matrix(1 0 0 1 0 0)" x="730" y="375">出力処理</text>
+  <circle cx="830" cy="370" fill="#c4ddff" id="svg_17" r="30" stroke="#0047ab" stroke-width="2"/>
+  <text fill="#0047ab" font-family="Arial, sans-serif" font-size="14" font-weight="bold" id="svg_18" text-anchor="middle" x="830" y="375">終了</text>
+  <path d="m140,230l0,40" fill="none" id="svg_19" marker-end="url(#arrowhead)" stroke="#0047ab" stroke-width="2"/>
+  <path d="m138,331.33l50,40" fill="none" id="svg_20" marker-end="url(#arrowhead)" stroke="#0047ab" stroke-width="2" transform="matrix(1 0 0 1 0 0)"/>
+  <path d="m290,370l60,0" fill="none" id="svg_21" marker-end="url(#arrowhead)" stroke="#0047ab" stroke-width="2" transform="matrix(1 0 0 1 0 0)"/>
+  <path d="m780,370l20,0" fill="none" id="svg_23" marker-end="url(#arrowhead)" stroke="#0047ab" stroke-width="2"/>
+  <rect fill="#fffacd" height="170" id="svg_25" rx="15" ry="15" stroke="#0047ab" stroke-dasharray="0" stroke-width="3" transform="matrix(1 0 0 1 0 0)" width="260" x="370" y="140"/>
+  <rect fill="#e6f0fa" height="150" id="svg_26" rx="12" ry="12" stroke="#0047ab" stroke-width="4" transform="matrix(1 0 0 1 0 0)" width="240" x="380" y="150"/>
+  <circle cx="430" cy="200" fill="#c4ddff" id="svg_30" r="25" stroke="#0047ab" stroke-width="2"/>
+  <text fill="#0047ab" font-family="Arial, sans-serif" font-size="20" font-weight="bold" id="svg_31" text-anchor="middle" x="430" y="205">AI</text>
+  <rect fill="#c4ddff" height="40" id="svg_32" rx="5" ry="5" stroke="#0047ab" stroke-width="2" width="120" x="480" y="170"/>
+  <text fill="#0047ab" font-family="Arial, sans-serif" font-size="14" font-weight="bold" id="svg_33" text-anchor="middle" x="540" y="195">思考プロセス</text>
+  <rect fill="#c4ddff" height="40" id="svg_34" rx="5" ry="5" stroke="#0047ab" stroke-width="2" width="120" x="480" y="240"/>
+  <text fill="#0047ab" font-family="Arial, sans-serif" font-size="14" font-weight="bold" id="svg_35" text-anchor="middle" x="540" y="265">実行決定</text>
+  <path d="m455,190l25,0" fill="none" id="svg_36" marker-end="url(#arrowhead)" stroke="#0047ab" stroke-width="2"/>
+  <path d="m480,210l-25,0" fill="none" id="svg_37" marker-end="url(#arrowhead)" stroke="#0047ab" stroke-width="2"/>
+  <path d="m540,210l0,30" fill="none" id="svg_38" marker-end="url(#arrowhead)" stroke="#0047ab" stroke-width="2"/>
+  <path d="m520,240l0,-30" fill="none" id="svg_39" marker-end="url(#arrowhead)" stroke="#0047ab" stroke-width="2"/>
+  <path d="m380,230l-50,0l0,40l-140,0" fill="none" id="svg_40" marker-end="url(#arrowhead)" stroke="#0047ab" stroke-dasharray="5,3" stroke-width="2"/>
+  <path d="m620,230l40,0l0,110l20,0" fill="none" id="svg_42" marker-end="url(#arrowhead)" stroke="#0047ab" stroke-dasharray="5,3" stroke-width="2"/>
+  <path d="m449.67,372.33l219.33,0" fill="none" id="svg_47" marker-end="url(#arrowhead)" stroke="#0047ab" stroke-width="2"/>
+  <path d="m242.5,338.16l115,-44.97" fill="none" id="svg_52" marker-end="url(#arrowhead)" stroke="#0047ab" stroke-width="2" transform="matrix(1 0 0 1 0 0)"/>
+ </g>
+</svg>

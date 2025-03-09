@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 600">
+  <!-- Background -->
+  <rect x="0" y="0" width="1000" height="600" fill="#f5f8fc"/>
+  
+  <!-- Main Title -->
+  <text x="500" y="40" font-family="Arial, sans-serif" font-size="28" font-weight="bold" text-anchor="middle" fill="#0047ab">AIエージェントによるブラウザ操作代行</text>
+  
+  <!-- Browser Window -->
+  <rect x="150" y="80" width="700" height="400" rx="5" ry="5" fill="white" stroke="#c0c0c0" stroke-width="2"/>
+  <rect x="150" y="80" width="700" height="30" rx="5" ry="5" fill="#e0e0e0" stroke="#c0c0c0" stroke-width="2"/>
+  <circle cx="170" cy="95" r="6" fill="#ff6347"/>
+  <circle cx="190" cy="95" r="6" fill="#ffd700"/>
+  <circle cx="210" cy="95" r="6" fill="#32cd32"/>
+  <rect x="240" y="87" width="550" height="16" rx="3" ry="3" fill="white" stroke="#c0c0c0" stroke-width="1"/>
+  
+  <!-- User and AI Interaction Area -->
+  <rect x="50" y="510" width="900" height="70" rx="10" ry="10" fill="#e6f0fa" stroke="#0047ab" stroke-width="2"/>
+  
+  <!-- AI Operator Component -->
+  <rect x="50" y="200" width="150" height="160" rx="10" ry="10" fill="#e6f0fa" stroke="#0047ab" stroke-width="2"/>
+  <text x="125" y="230" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle" fill="#0047ab">AIエージェント</text>
+  <text x="125" y="255" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#0047ab">オペレーター</text>
+  <circle cx="125" cy="300" r="40" fill="#c4ddff" stroke="#0047ab" stroke-width="2"/>
+  <path d="M105 290 Q125 270 145 290" fill="none" stroke="#0047ab" stroke-width="2"/>
+  <circle cx="115" cy="280" r="5" fill="#0047ab"/>
+  <circle cx="135" cy="280" r="5" fill="#0047ab"/>
+  <path d="M115 320 Q125 330 135 320" fill="none" stroke="#0047ab" stroke-width="2"/>
+  
+  <!-- Browser Automation Flow -->
+  <path d="M200 280 L250 280" fill="none" stroke="#0047ab" stroke-width="3" marker-end="url(#arrowhead)"/>
+  <rect x="250" y="250" width="120" height="60" rx="10" ry="10" fill="#c4ddff" stroke="#0047ab" stroke-width="2"/>
+  <text x="310" y="285" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#0047ab">ページ解析</text>
+  
+  <path d="M370 280 L420 280" fill="none" stroke="#0047ab" stroke-width="3" marker-end="url(#arrowhead)"/>
+  <rect x="420" y="250" width="120" height="60" rx="10" ry="10" fill="#c4ddff" stroke="#0047ab" stroke-width="2"/>
+  <text x="480" y="285" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#0047ab">操作決定</text>
+  
+  <path d="M540 280 L590 280" fill="none" stroke="#0047ab" stroke-width="3" marker-end="url(#arrowhead)"/>
+  <rect x="590" y="250" width="120" height="60" rx="10" ry="10" fill="#c4ddff" stroke="#0047ab" stroke-width="2"/>
+  <text x="650" y="275" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#0047ab">ブラウザ</text>
+  <text x="650" y="295" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#0047ab">操作実行</text>
+  
+  <path d="M710 280 L760 280" fill="none" stroke="#0047ab" stroke-width="3" marker-end="url(#arrowhead)"/>
+  <rect x="760" y="250" width="120" height="60" rx="10" ry="10" fill="#c4ddff" stroke="#0047ab" stroke-width="2"/>
+  <text x="820" y="275" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#0047ab">結果確認</text>
+  <text x="820" y="295" font-family="Arial, sans-serif" font-size="16" font-weight="bold" text-anchor="middle" fill="#0047ab">次の操作</text>
+  
+  <!-- Feedback Loop -->
+  <path d="M820 250 C820 200, 500 150, 310 250" fill="none" stroke="#0047ab" stroke-width="3" stroke-dasharray="5,5" marker-end="url(#arrowhead)"/>
+  
+  <!-- Interaction Labels -->
+  <text x="120" y="545" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle" fill="#0047ab">ユーザー指示</text>
+  <text x="120" y="565" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#0047ab">タスクの依頼</text>
+  
+  <path d="M200 545 L350 545" fill="none" stroke="#0047ab" stroke-width="3" marker-end="url(#arrowhead)"/>
+  
+  <text x="500" y="545" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle" fill="#0047ab">AIによるブラウザ操作</text>
+  <text x="500" y="565" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#0047ab">ユーザーに代わってタスクを自動実行</text>
+  
+  <path d="M650 545 L800 545" fill="none" stroke="#0047ab" stroke-width="3" marker-end="url(#arrowhead)"/>
+  
+  <text x="880" y="545" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle" fill="#0047ab">タスク完了</text>
+  <text x="880" y="565" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#0047ab">結果報告</text>
+  
+  <!-- Browser Icons -->
+  <circle cx="280" cy="170" r="15" fill="#2e8ae6"/>
+  <text x="280" y="175" font-family="Arial, sans-serif" font-size="18" font-weight="bold" text-anchor="middle" fill="white">i</text>
+  
+  <rect x="350" y="155" width="100" height="30" rx="5" ry="5" fill="#f0f0f0" stroke="#c0c0c0" stroke-width="1"/>
+  <text x="400" y="175" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#444">検索...</text>
+  
+  <rect x="500" y="155" width="80" height="30" rx="5" ry="5" fill="#4285f4" stroke="none"/>
+  <text x="540" y="175" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="white">ログイン</text>
+  
+  <rect x="600" y="155" width="80" height="30" rx="5" ry="5" fill="#34a853" stroke="none"/>
+  <text x="640" y="175" font-family="Arial, sans-serif" font-size="14" font-weight="bold" text-anchor="middle" fill="white">送信</text>
+  
+  <!-- Highlights -->
+  <rect x="250" y="350" width="500" height="30" rx="0" ry="0" fill="#fffacd" stroke="#ffd700" stroke-width="1" stroke-dasharray="5,5"/>
+  <text x="500" y="370" font-family="Arial, sans-serif" font-size="14" text-anchor="middle" fill="#444">AIがこの部分を認識して自動的に操作中...</text>
+  
+  <circle cx="640" cy="160" r="20" fill="none" stroke="#ff6347" stroke-width="2" stroke-dasharray="5,5"/>
+  
+  <!-- Arrow Definitions -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="#0047ab"/>
+    </marker>
+  </defs>
+</svg>
