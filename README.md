@@ -12,6 +12,7 @@
 - [ai_agent_demo.html](./ai_agent_demo.html)
 - [ai-traditional-program-demo.html](./ai-traditional-program-demo.html)
 - [ai-productivity-comparison.html](./ai-productivity-comparison.html)
+- [2025-03-12_ai-models-comparison-demo.html](./2025-03-12_ai-models-comparison-demo.html)
 - [2025-03-09_learning-roadmap.html](./2025-03-09_learning-roadmap.html)
 - [2025-03-09_framework-house-metaphor-revised.html](./2025-03-09_framework-house-metaphor-revised.html)
 - [2025-03-09_dify-workflow-diagram_edit.svg](./2025-03-09_dify-workflow-diagram_edit.svg)
