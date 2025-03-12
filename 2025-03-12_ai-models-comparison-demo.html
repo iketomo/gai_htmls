@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AIモデル比較デモ: 通常モデル vs 推論型モデル</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .models-container {
+            display: flex;
+            gap: 20px;
+        }
+        .model {
+            flex: 1;
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+        .model-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        .model-icon {
+            width: 40px;
+            height: 40px;
+            margin-right: 10px;
+            background-color: #ddd;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+        .normal-icon {
+            background-color: #4a90e2;
+            color: white;
+        }
+        .reasoning-icon {
+            background-color: #50b36e;
+            color: white;
+        }
+        .model-title {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .model-description {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+        .chat-container {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            height: 300px;
+            overflow-y: auto;
+            padding: 10px;
+            background-color: white;
+            margin-bottom: 10px;
+        }
+        .thinking-indicator {
+            display: none;
+            color: #888;
+            font-style: italic;
+            padding: 5px 0;
+        }
+        .thinking-animation {
+            display: inline-block;
+        }
+        .thinking-process {
+            display: none;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8f8f8;
+            border-radius: 8px;
+            border-left: 3px solid #50b36e;
+            font-size: 14px;
+        }
+        .thinking-step {
+            margin-bottom: 8px;
+            padding-left: 10px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        .thinking-step.active {
+            opacity: 1;
+        }
+        .message {
+            margin-bottom: 10px;
+            padding: 8px 12px;
+            border-radius: 18px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+        .user-message {
+            background-color: #e1f5fe;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+        .ai-message {
+            background-color: #f1f1f1;
+            border-bottom-left-radius: 4px;
+        }
+        .controls {
+            margin-top: 20px;
+        }
+        .question-selector {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        .ask-button {
+            padding: 10px 20px;
+            background-color: #4a90e2;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .ask-button:hover {
+            background-color: #3a80d2;
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 40px;
+        }
+        .comparison-table th, .comparison-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        .comparison-table th {
+            background-color: #f2f2f2;
+        }
+        .thinking-progress {
+            height: 6px;
+            width: 0%;
+            background-color: #50b36e;
+            border-radius: 3px;
+            transition: width 0.1s linear;
+        }
+        .time-indicator {
+            font-size: 12px;
+            color: #888;
+            text-align: right;
+            margin-top: 5px;
+        }
+        .highlight {
+            background-color: #fffacd;
+            padding: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>AIチャットモデル比較デモ</h1>
+            <p>通常のAIモデルと推論型モデルの違いを体験してみましょう</p>
+        </div>
+
+        <div class="models-container">
+            <!-- 通常モデル -->
+            <div class="model">
+                <div class="model-header">
+                    <div class="model-icon normal-icon">N</div>
+                    <div class="model-title">通常モデル</div>
+                </div>
+                <div class="model-description">
+                    入力に対してすぐに応答します。シンプルな質問には素早く回答できますが、複雑な推論が必要な場合は正確性が低下することがあります。
+                </div>
+                <div class="chat-container" id="normal-chat">
+                    <!-- チャットメッセージがここに表示されます -->
+                </div>
+                <div class="thinking-indicator" id="normal-thinking">
+                    <div class="thinking-progress" id="normal-progress"></div>
+                    <div class="thinking-animation">考え中...</div>
+                    <div class="time-indicator" id="normal-time">0.2秒</div>
+                </div>
+            </div>
+
+            <!-- 推論型モデル -->
+            <div class="model">
+                <div class="model-header">
+                    <div class="model-icon reasoning-icon">R</div>
+                    <div class="model-title">推論型モデル</div>
+                </div>
+                <div class="model-description">
+                    回答前に「考える時間」を取ります。複雑な問題に対してより正確で論理的な回答が可能ですが、応答に時間がかかります。
+                </div>
+                <div class="chat-container" id="reasoning-chat">
+                    <!-- チャットメッセージがここに表示されます -->
+                </div>
+                <div class="thinking-indicator" id="reasoning-thinking">
+                    <div class="thinking-progress" id="reasoning-progress"></div>
+                    <div class="thinking-animation">深く考え中...</div>
+                    <div class="time-indicator" id="reasoning-time">3.5秒</div>
+                    <div class="thinking-process" id="reasoning-process">
+                        <!-- 思考プロセスがここに動的に表示されます -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <select class="question-selector" id="question-selector">
+                <option value="" disabled selected>質問を選んでください</option>
+                <option value="simple">簡単な質問: 東京の人口はどれくらいですか？</option>
+                <option value="math">計算問題: 26 x 31 - 17 x 24 = ?</option>
+                <option value="logic">論理パズル: 4人が川を渡るには？</option>
+                <option value="complex">推論問題: 気候変動対策の優先順位は？</option>
+            </select>
+            <button class="ask-button" id="ask-button">質問する</button>
+        </div>
+
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>特徴</th>
+                    <th>通常モデル</th>
+                    <th>推論型モデル</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>応答速度</td>
+                    <td>非常に速い (0.2-1秒)</td>
+                    <td>やや遅い (3-10秒)</td>
+                </tr>
+                <tr>
+                    <td>複雑な推論能力</td>
+                    <td>限定的</td>
+                    <td>高い</td>
+                </tr>
+                <tr>
+                    <td>数学的問題への対応</td>
+                    <td>単純な計算は可能</td>
+                    <td>複雑な計算や証明が可能</td>
+                </tr>
+                <tr>
+                    <td>論理的一貫性</td>
+                    <td>時に矛盾が生じる</td>
+                    <td>より一貫性が高い</td>
+                </tr>
+                <tr>
+                    <td>リソース消費</td>
+                    <td>少ない</td>
+                    <td>多い</td>
+                </tr>
+                <tr>
+                    <td>最適な用途</td>
+                    <td>情報検索、簡単な対話、創作活動</td>
+                    <td>複雑な問題解決、計画立案、分析</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        // サンプルの質問と回答のデータ
+        const questionData = {
+            "simple": {
+                question: "東京の人口はどれくらいですか？",
+                normalAnswer: "東京都の人口は約1,400万人です。23区内だけでは約970万人になります。",
+                normalTime: 0.4,
+                reasoningAnswer: "東京都の人口は約1,400万人です（2024年10月時点の推定）。これは23区と多摩地域を含む都全体の数字です。23区内だけでは約970万人、都市圏全体では約3,800万人になります。なお、昼間人口は通勤・通学で流入する人々により更に多くなります。",
+                reasoningTime: 3.2,
+                thinkingProcess: [
+                    "質問の明確化：「東京」の定義を特定する必要がある（都全体か23区のみか）",
+                    "知識ベースの検索：東京都全体、23区部、都市圏の人口データを参照",
+                    "関連情報の特定：昼間人口やデータの時点なども関連する可能性がある",
+                    "回答の構成：最新の人口統計を中心に、地理的範囲ごとの違いを説明する形で情報を整理"
+                ]
+            },
+            "math": {
+                question: "26 x 31 - 17 x 24 = ?",
+                normalAnswer: "26 × 31 = 806、17 × 24 = 408、806 - 408 = 398です。",
+                normalTime: 0.8,
+                reasoningAnswer: "この計算を順番に行います：\n\n26 × 31 = 806\n17 × 24 = 408\n\n806 - 408 = 398\n\n答えは398です。",
+                reasoningTime: 4.5,
+                thinkingProcess: [
+                    "式の分解：計算順序を明確にする（掛け算を先に行い、その後に引き算）",
+                    "最初の掛け算を実行：26 × 31を計算\n  20 × 30 = 600\n  20 × 1 = 20\n  6 × 30 = 180\n  6 × 1 = 6\n  合計: 600 + 20 + 180 + 6 = 806",
+                    "二番目の掛け算を実行：17 × 24を計算\n  10 × 20 = 200\n  10 × 4 = 40\n  7 × 20 = 140\n  7 × 4 = 28\n  合計: 200 + 40 + 140 + 28 = 408",
+                    "最後の引き算を実行：806 - 408 = 398"
+                ]
+            },
+            "logic": {
+                question: "4人の人がいて、川を渡りたいと思っています。橋は壊れていて、2人乗りのボートしかありません。暗いので懐中電灯が必要ですが、1つしかありません。Aさんは1分、Bさんは2分、Cさんは5分、Dさんは10分で川を渡れます。2人で渡る場合は、遅い方の速度に合わせる必要があります。全員が渡るのに最短何分かかりますか？",
+                normalAnswer: "最短で17分です。まずAとBが渡り(2分)、Aが戻ります(1分)。次にCとDが渡り(10分)、Bが戻ります(2分)。最後にAとBが渡ります(2分)。合計で2+1+10+2+2=17分です。",
+                normalTime: 1.2,
+                reasoningAnswer: "この問題を解くには、誰がボートを操作して戻るかを考える必要があります。\n\n最適な解法は以下の通りです：\n\n1. AとBが渡る：2分\n2. Aが戻る：1分\n3. CとDが渡る：10分\n4. Bが戻る：2分\n5. AとBが渡る：2分\n\n合計時間：2 + 1 + 10 + 2 + 2 = 17分\n\nこれが最短時間です。他の組み合わせ（例えばAとC、AとD、BとC）を試しても、より短い時間にはなりません。",
+                reasoningTime: 8.0,
+                thinkingProcess: [
+                    "問題の制約の整理：\n - 2人乗りのボート\n - 懐中電灯は1つのみ\n - 渡る時間：A=1分、B=2分、C=5分、D=10分\n - 2人で渡る場合は遅い方の速度に合わせる",
+                    "最適化の方針：\n - 遅い人（CとD）は一緒に渡るのが効率的\n - 速い人（AとB）は往復役として活用すべき",
+                    "可能な戦略の検討：\n - 戦略1: 最も速い人(A)を往復役にする\n - 戦略2: 2番目に速い人(B)を往復役にする\n - 戦略3: AとBの両方を往復役として使う",
+                    "戦略1の計算：\n - A+B渡る(2分) → A戻る(1分) → A+C渡る(5分) → A戻る(1分) → A+D渡る(10分) = 19分",
+                    "戦略2の計算：\n - A+B渡る(2分) → A戻る(1分) → C+D渡る(10分) → B戻る(2分) → A+B渡る(2分) = 17分",
+                    "戦略3の計算：複数パターンを検討...",
+                    "最適解の確認：戦略2が最も効率的で17分"
+                ]
+            },
+            "complex": {
+                question: "気候変動対策において、再生可能エネルギーへの投資と森林保全、どちらを優先すべきでしょうか？それぞれの長所と短所を考慮して説明してください。",
+                normalAnswer: "気候変動対策では、両方とも重要です。再生可能エネルギーは化石燃料の代替として直接的にCO2排出を削減できますが、初期投資コストが高いです。一方、森林保全は比較的コストが低く生物多様性も保護できますが、効果が現れるまで時間がかかります。理想的には両方をバランスよく進めるべきですが、短期的には再生可能エネルギーへの投資が優先されることが多いです。",
+                normalTime: 1.5,
+                reasoningAnswer: "気候変動対策における優先順位を考える際は、以下の点を総合的に判断する必要があります。\n\n【再生可能エネルギーへの投資】\n長所：\n・直接的なCO2排出削減効果がある\n・技術革新により長期的にコストが下がる傾向\n・エネルギー自給率の向上に貢献\n・新たな雇用創出につながる\n\n短所：\n・初期投資コストが高い\n・一部の技術は土地利用の競合を引き起こす\n・間欠性の問題（太陽光・風力等）がある\n・蓄電技術の課題がある\n\n【森林保全】\n長所：\n・自然のカーボンシンクとして機能する\n・生物多様性の保護につながる\n・水源涵養など複数の生態系サービスを提供\n・比較的低コストで実施可能\n\n短所：\n・効果が現れるまで時間がかかる\n・土地利用の競合（農業など）が生じる場合がある\n・政治的・社会的要因で持続性が脅かされることがある\n・測定・検証が難しい場合がある\n\n理想的には、両方を並行して進めるべきですが、地域の状況により優先順位は変わります。例えば：\n\n・先進国では化石燃料依存からの脱却のため再生可能エネルギーへの投資\n・熱帯地域では森林減少が深刻なため森林保全\n\n結論として、短期的な排出削減と長期的な炭素吸収のバランスを考慮し、地域の状況に応じた総合的アプローチが必要です。",
+                reasoningTime: 10.0,
+                thinkingProcess: [
+                    "問題の多角的な分析：\n - 気候変動対策の主要目的（CO2削減）を確認\n - 短期的効果と長期的効果の区別\n - 費用対効果の観点\n - 地域差の考慮\n - 副次的効果・影響の検討",
+                    "再生可能エネルギーの分析：\n - 排出削減効果の定量化\n - 初期コストと長期的コスト推移\n - 技術的課題（間欠性、蓄電など）\n - エネルギー安全保障との関連\n - 経済的・社会的影響（雇用創出など）",
+                    "森林保全の分析：\n - 炭素吸収能力の評価\n - 生物多様性保全などの副次的効果\n - 実施・維持管理の課題\n - 政治的・社会的要因の影響\n - 地域社会への影響",
+                    "優先順位付けの基準：\n - 時間軸（短期・中期・長期）\n - 地域特性（先進国vs途上国、気候帯など）\n - 既存のインフラと政策環境\n - 費用対効果と実現可能性",
+                    "バランスの取れたアプローチの検討：\n - 相乗効果の可能性\n - 段階的実施の戦略\n - 地域特性に応じた優先順位付け",
+                    "最終的な判断：両アプローチのバランスの必要性、地域状況に応じた柔軟な対応"
+                ]
+            }
+        };
+
+        // DOM要素の取得
+        const questionSelector = document.getElementById('question-selector');
+        const askButton = document.getElementById('ask-button');
+        const normalChat = document.getElementById('normal-chat');
+        const reasoningChat = document.getElementById('reasoning-chat');
+        const normalThinking = document.getElementById('normal-thinking');
+        const reasoningThinking = document.getElementById('reasoning-thinking');
+        const normalProgress = document.getElementById('normal-progress');
+        const reasoningProgress = document.getElementById('reasoning-progress');
+        const normalTime = document.getElementById('normal-time');
+        const reasoningTime = document.getElementById('reasoning-time');
+
+        // メッセージを追加する関数
+        function addMessage(container, text, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'ai-message'}`;
+            messageDiv.innerHTML = text.replace(/\n/g, '<br>');
+            container.appendChild(messageDiv);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // 考え中の表示を制御する関数
+        function showThinking(model, duration, timeText) {
+            const thinkingElement = document.getElementById(`${model}-thinking`);
+            const progressElement = document.getElementById(`${model}-progress`);
+            const timeElement = document.getElementById(`${model}-time`);
+            const processElement = document.getElementById(`${model}-process`);
+            
+            thinkingElement.style.display = 'block';
+            timeElement.textContent = timeText;
+            
+            // プログレスバーのアニメーション
+            let progress = 0;
+            const interval = 50;
+            const steps = duration * 1000 / interval;
+            const increment = 100 / steps;
+            
+            progressElement.style.width = '0%';
+            
+            // 思考プロセスを表示（推論モデルのみ）
+            if (model === 'reasoning') {
+                const selectedQuestion = questionSelector.value;
+                const thinkingSteps = questionData[selectedQuestion]?.thinkingProcess || [];
+                
+                if (thinkingSteps.length > 0) {
+                    // 思考プロセス領域を表示
+                    processElement.style.display = 'block';
+                    processElement.innerHTML = '';
+                    
+                    // 思考ステップを追加
+                    thinkingSteps.forEach((step, index) => {
+                        const stepElement = document.createElement('div');
+                        stepElement.className = 'thinking-step';
+                        stepElement.innerHTML = step.replace(/\n/g, '<br>');
+                        processElement.appendChild(stepElement);
+                        
+                        // 各ステップを時間差で表示
+                        setTimeout(() => {
+                            stepElement.classList.add('active');
+                        }, (duration * 1000 * (index + 1)) / (thinkingSteps.length + 1));
+                    });
+                }
+            }
+            
+            const progressTimer = setInterval(() => {
+                progress += increment;
+                progressElement.style.width = `${Math.min(progress, 100)}%`;
+                
+                if (progress >= 100) {
+                    clearInterval(progressTimer);
+                }
+            }, interval);
+            
+            return new Promise(resolve => setTimeout(() => {
+                thinkingElement.style.display = 'none';
+                if (model === 'reasoning') {
+                    processElement.style.display = 'none';
+                }
+                resolve();
+            }, duration * 1000));
+        }
+
+        // 質問と回答を表示する関数
+        async function showQA(questionKey) {
+            const data = questionData[questionKey];
+            if (!data) return;
+            
+            // チャットをクリア
+            normalChat.innerHTML = '';
+            reasoningChat.innerHTML = '';
+            
+            // 質問を表示
+            addMessage(normalChat, data.question, true);
+            addMessage(reasoningChat, data.question, true);
+            
+            // 通常モデルの応答（短い考え中の表示後）
+            await showThinking('normal', data.normalTime, `${data.normalTime}秒`);
+            addMessage(normalChat, data.normalAnswer);
+            
+            // 推論モデルの応答（長い考え中の表示後）
+            await showThinking('reasoning', data.reasoningTime, `${data.reasoningTime}秒`);
+            addMessage(reasoningChat, data.reasoningAnswer);
+        }
+
+        // イベントリスナー
+        askButton.addEventListener('click', () => {
+            const selectedQuestion = questionSelector.value;
+            if (selectedQuestion) {
+                showQA(selectedQuestion);
+            }
+        });
+
+        // 初期メッセージ
+        addMessage(normalChat, "こんにちは！質問してください。");
+        addMessage(reasoningChat, "こんにちは！難しい質問でも考えてから回答します。");
+    </script>
+</body>
+</html>
