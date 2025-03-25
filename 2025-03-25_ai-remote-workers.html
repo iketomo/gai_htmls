@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI完全代替：2027年までにリモートワーカーは消える？</title>
+    <style>
+        :root {
+            --primary: #ff3860;
+            --secondary: #3273dc;
+            --dark: #121212;
+            --light: #f5f5f5;
+            --warning: #ffdd57;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: var(--dark);
+            color: var(--light);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        header {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .countdown {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--primary);
+            background: rgba(0,0,0,0.7);
+            padding: 10px 20px;
+            border-radius: 4px;
+            box-shadow: 0 0 15px rgba(255, 56, 96, 0.5);
+            z-index: 100;
+        }
+        
+        h1 {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            line-height: 1.2;
+            animation: pulse 2s infinite;
+        }
+        
+        h1 span {
+            color: var(--primary);
+        }
+        
+        h2 {
+            font-size: 2rem;
+            margin: 40px 0 20px;
+            color: var(--secondary);
+            border-bottom: 2px solid var(--secondary);
+            padding-bottom: 10px;
+        }
+        
+        section {
+            padding: 80px 0;
+        }
+        
+        .section-dark {
+            background-color: var(--dark);
+        }
+        
+        .section-darker {
+            background-color: #0a0a0a;
+        }
+        
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
+        }
+        
+        .card {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 25px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--primary);
+        }
+        
+        .card-highlight {
+            border-left: 4px solid var(--primary);
+        }
+        
+        .card-warning {
+            border-left: 4px solid var(--warning);
+        }
+        
+        .timeline {
+            position: relative;
+            max-width: 1200px;
+            margin: 60px auto;
+        }
+        
+        .timeline::after {
+            content: '';
+            position: absolute;
+            width: 6px;
+            background-color: var(--secondary);
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            margin-left: -3px;
+        }
+        
+        .timeline-container {
+            padding: 10px 40px;
+            position: relative;
+            width: 50%;
+        }
+        
+        .timeline-container.left {
+            left: 0;
+        }
+        
+        .timeline-container.right {
+            left: 50%;
+        }
+        
+        .timeline-container::after {
+            content: '';
+            position: absolute;
+            width: 25px;
+            height: 25px;
+            background-color: var(--light);
+            border: 4px solid var(--secondary);
+            top: 15px;
+            border-radius: 50%;
+            z-index: 1;
+        }
+        
+        .timeline-container.left::after {
+            right: -13px;
+        }
+        
+        .timeline-container.right::after {
+            left: -13px;
+        }
+        
+        .timeline-content {
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.05);
+            position: relative;
+            border-radius: 6px;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            margin: 40px 0;
+        }
+        
+        #productivityChart, #economicImpactChart {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .highlight-text {
+            color: var(--primary);
+            font-weight: bold;
+        }
+        
+        .fade-in {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+        
+        .fade-in.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .human-ai-comparison {
+            display: flex;
+            justify-content: space-between;
+            margin: 40px 0;
+        }
+        
+        .human-side, .ai-side {
+            width: 45%;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        
+        .human-side {
+            background-color: rgba(255, 255, 255, 0.05);
+            position: relative;
+        }
+        
+        .ai-side {
+            background-color: rgba(50, 115, 220, 0.1);
+            position: relative;
+        }
+        
+        .versus {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 2rem;
+            color: var(--warning);
+            font-weight: bold;
+            background-color: rgba(0,0,0,0.7);
+            width: 50px;
+            height: 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 50%;
+            z-index: 10;
+        }
+        
+        .quote {
+            font-style: italic;
+            color: var(--light);
+            margin: 30px 0;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-left: 4px solid var(--primary);
+            position: relative;
+        }
+        
+        .quote::before {
+            content: '"';
+            font-size: 4rem;
+            color: var(--primary);
+            position: absolute;
+            left: 10px;
+            top: -10px;
+            opacity: 0.2;
+        }
+        
+        .cta-button {
+            display: inline-block;
+            padding: 12px 30px;
+            background-color: var(--primary);
+            color: var(--light);
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            margin: 20px 0;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+        
+        .cta-button:hover {
+            background-color: #e61a4d;
+            transform: scale(1.05);
+        }
+        
+        footer {
+            padding: 40px 0;
+            text-align: center;
+            font-size: 0.9rem;
+            background-color: #0a0a0a;
+        }
+        
+        .worker-replacement {
+            position: relative;
+            height: 200px;
+            margin: 40px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .worker-icon {
+            width: 40px;
+            height: 40px;
+            background-color: var(--light);
+            border-radius: 50%;
+            position: absolute;
+            transition: all 1s ease;
+        }
+        
+        .ai-replacing {
+            background-color: var(--primary);
+            transform: scale(0);
+        }
+        
+        #investmentGrowthChart {
+            width: 100%;
+            height: 400px;
+        }
+        
+        @keyframes pulse {
+            0% {
+                text-shadow: 0 0 10px rgba(255, 56, 96, 0.7);
+            }
+            50% {
+                text-shadow: 0 0 20px rgba(255, 56, 96, 1);
+            }
+            100% {
+                text-shadow: 0 0 10px rgba(255, 56, 96, 0.7);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 3rem;
+            }
+            
+            .timeline::after {
+                left: 31px;
+            }
+            
+            .timeline-container {
+                width: 100%;
+                padding-left: 70px;
+                padding-right: 25px;
+            }
+            
+            .timeline-container.right {
+                left: 0;
+            }
+            
+            .timeline-container.left::after, .timeline-container.right::after {
+                left: 15px;
+            }
+            
+            .human-ai-comparison {
+                flex-direction: column;
+            }
+            
+            .human-side, .ai-side {
+                width: 100%;
+                margin-bottom: 20px;
+            }
+            
+            .versus {
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="countdown" id="countdown">2027年まで: <span id="years">0</span>年 <span id="months">0</span>月 <span id="days">0</span>日</div>
+    
+    <header>
+        <div class="container">
+            <h1><span>リモートワーカーを丸ごと置き換える</span><br>AI時代が<br>迫っている</h1>
+            <p class="subtitle" style="font-size: 1.5rem; margin-bottom: 30px;">2026～2027年、あなたの仕事は残るのか？</p>
+            <a href="#main" class="cta-button">詳細を見る</a>
+        </div>
+    </header>
+    
+    <main id="main">
+        <section class="section-darker">
+            <div class="container">
+                <h2 class="fade-in">数字で見るAI代替の未来</h2>
+                
+                <div class="grid-container">
+                    <div class="card fade-in">
+                        <h3>リモートワーク代替</h3>
+                        <p>2027年までに<span class="highlight-text">ほぼ全ての</span>リモートワークがAIで自動化される可能性</p>
+                    </div>
+                    
+                    <div class="card fade-in">
+                        <h3>巨額投資</h3>
+                        <p>AI学習コスト：<span class="highlight-text">1000億ドル規模</span>のモデル開発が現実に</p>
+                    </div>
+                    
+                    <div class="card fade-in">
+                        <h3>経済成長</h3>
+                        <p>AI導入によって世界のGDPが<span class="highlight-text">7%増加</span>する潜在力</p>
+                    </div>
+                    
+                    <div class="card fade-in card-warning">
+                        <h3>雇用への影響</h3>
+                        <p>約<span class="highlight-text">3億人分の仕事</span>がAIに置き換えられる可能性</p>
+                    </div>
+                </div>
+                
+                <div class="quote fade-in">
+                    <p>「人々はAIのリスクと恩恵を十分に真剣視していないが、あと2年もすればその現実に目覚めるだろう」</p>
+                    <p style="text-align: right; margin-top: 10px;">— ダリオ・アモデイ（Anthropic CEO）, 2025年3月</p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section-dark">
+            <div class="container">
+                <h2 class="fade-in">AIの進化：超加速する知性</h2>
+                
+                <div class="timeline fade-in">
+                    <div class="timeline-container left">
+                        <div class="timeline-content">
+                            <h3>2019</h3>
+                            <p>GPT-2登場：「幼稚園児レベル」の知能</p>
+                        </div>
+                    </div>
+                    <div class="timeline-container right">
+                        <div class="timeline-content">
+                            <h3>2023</h3>
+                            <p>GPT-4登場：「賢い高校生レベル」の知能</p>
+                        </div>
+                    </div>
+                    <div class="timeline-container left">
+                        <div class="timeline-content">
+                            <h3>2025</h3>
+                            <p>訓練コスト10億ドル級モデル登場</p>
+                        </div>
+                    </div>
+                    <div class="timeline-container right">
+                        <div class="timeline-content">
+                            <h3>2026-2027</h3>
+                            <p>AGI達成：「リモートワーカーと同等かそれ以上」</p>
+                        </div>
+                    </div>
+                    <div class="timeline-container left">
+                        <div class="timeline-content">
+                            <h3>2028-2030</h3>
+                            <p>ASI（人工超知能）の可能性：「人類の知性を凌駕」</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chart-container fade-in">
+                    <canvas id="productivityChart"></canvas>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section-darker">
+            <div class="container">
+                <h2 class="fade-in">「ドロップイン・リモートワーカー」の台頭</h2>
+                
+                <p class="fade-in">会社のワークフローを変えることなく、そのままAIをリモート社員として"雇用"できる未来が目前に迫っています。</p>
+                
+                <div class="human-ai-comparison fade-in">
+                    <div class="human-side">
+                        <h3>人間のリモートワーカー</h3>
+                        <ul>
+                            <li>体調による生産性の変動</li>
+                            <li>8時間勤務制限</li>
+                            <li>休暇・福利厚生が必要</li>
+                            <li>採用・教育コストがかかる</li>
+                            <li>離職リスクがある</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="versus">VS</div>
+                    
+                    <div class="ai-side">
+                        <h3>AIリモートワーカー</h3>
+                        <ul>
+                            <li>一定の高品質なパフォーマンス</li>
+                            <li>24時間365日稼働可能</li>
+                            <li>必要なときだけ"雇用"可能</li>
+                            <li>複数のコピーを同時稼働可能</li>
+                            <li>継続的に進化・改善</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="worker-replacement fade-in" id="workerReplacement">
+                    <!-- JavaScript will add worker icons here -->
+                </div>
+                
+                <div class="card fade-in card-highlight">
+                    <h3>AIリモートワーカーの能力</h3>
+                    <p>最新のAIエージェントは...</p>
+                    <ul>
+                        <li>Slackでコミュニケーション</li>
+                        <li>GitHubでコード提出</li>
+                        <li>社内ツールを自在に操作</li>
+                        <li>複数週間のプロジェクトを自律的に遂行</li>
+                        <li>エラーを自己修正</li>
+                        <li>同僚と協力して作業</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section-dark">
+            <div class="container">
+                <h2 class="fade-in">加速するAI投資競争</h2>
+                
+                <div class="chart-container fade-in">
+                    <canvas id="investmentGrowthChart"></canvas>
+                </div>
+                
+                <div class="grid-container">
+                    <div class="card fade-in">
+                        <h3>Meta（Facebook）</h3>
+                        <p>GPUを35万枚購入し、AI開発を加速</p>
+                    </div>
+                    
+                    <div class="card fade-in">
+                        <h3>Amazon</h3>
+                        <p>原子力発電所に隣接する1ギガワット級データセンター用地を取得</p>
+                    </div>
+                    
+                    <div class="card fade-in">
+                        <h3>OpenAI</h3>
+                        <p>Stargateプロジェクトを始動、次世代モデル開発へ</p>
+                    </div>
+                </div>
+                
+                <div class="quote fade-in">
+                    <p>「まさにデータセンターの中に"天才たちの国家"を丸ごと実現したようなものだ」</p>
+                    <p style="text-align: right; margin-top: 10px;">— ダリオ・アモデイ（Anthropic CEO）</p>
+                </div>
+            </div>
+        </section>
+        
+        <section class="section-darker">
+            <div class="container">
+                <h2 class="fade-in">経済・社会への影響</h2>
+                
+                <div class="chart-container fade-in">
+                    <canvas id="economicImpactChart"></canvas>
+                </div>
+                
+                <div class="grid-container">
+                    <div class="card fade-in card-highlight">
+                        <h3>企業のメリット</h3>
+                        <ul>
+                            <li>人件費の大幅削減</li>
+                            <li>24時間稼働による生産性向上</li>
+                            <li>一定品質の維持</li>
+                            <li>需要変動への柔軟な対応</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card fade-in card-warning">
+                        <h3>社会的課題</h3>
+                        <ul>
+                            <li>大規模な雇用喪失</li>
+                            <li>所得格差の拡大リスク</li>
+                            <li>新たな社会保障制度の必要性</li>
+                            <li>「働く意義」の再定義</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <p class="fade-in" style="margin-top: 40px;">AIによるリモートワーク自動化は、生産性向上と経済成長をもたらす一方で、雇用市場と社会構造の根本的な変革を迫ります。この変革に適応するためには、政策的対応と個人の備えが欠かせません。</p>
+            </div>
+        </section>
+        
+        <section class="section-dark">
+            <div class="container">
+                <h2 class="fade-in">未来に備えるために</h2>
+                
+                <div class="grid-container">
+                    <div class="card fade-in">
+                        <h3>個人ができること</h3>
+                        <ul>
+                            <li>AIと協働するスキルの習得</li>
+                            <li>創造性や対人スキルの強化</li>
+                            <li>ニッチな専門性の開発</li>
+                            <li>副業・複業による収入の多様化</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card fade-in">
+                        <h3>企業に求められること</h3>
+                        <ul>
+                            <li>人間とAIの最適な協働モデル構築</li>
+                            <li>従業員のスキル再開発支援</li>
+                            <li>テクノロジーと人間性の両立</li>
+                            <li>倫理的なAI導入と責任ある移行</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <div class="quote fade-in">
+                    <p>「AIによるリモートワーク自動化の未来は私たち次第です。AIがもたらす価値を最大化しリスクを最小化する道を選べるかどうか——その選択に人類の知恵が問われています。」</p>
+                </div>
+                
+                <div style="text-align: center; margin-top: 60px;">
+                    <h3 class="fade-in">あなたは準備ができていますか？</h3>
+                    <a href="#" class="cta-button fade-in">もっと詳しく知る</a>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer>
+        <div class="container">
+            <p>© 2025 - AI完全代替：2027年までにリモートワーカーは消える？</p>
+            <p style="margin-top: 10px; font-size: 0.8rem;">※本コンテンツは「リモートワーカーを丸ごと置き換えるAI」の記事を基に作成されています。</p>
+        </div>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    <script>
+        // Countdown to 2027
+        function updateCountdown() {
+            const now = new Date();
+            const target = new Date('2027-01-01T00:00:00');
+            const diff = target - now;
+            
+            const years = Math.floor(diff / (1000 * 60 * 60 * 24 * 365));
+            const months = Math.floor((diff % (1000 * 60 * 60 * 24 * 365)) / (1000 * 60 * 60 * 24 * 30));
+            const days = Math.floor((diff % (1000 * 60 * 60 * 24 * 30)) / (1000 * 60 * 60 * 24));
+            
+            document.getElementById('years').textContent = years;
+            document.getElementById('months').textContent = months;
+            document.getElementById('days').textContent = days;
+        }
+        
+        updateCountdown();
+        setInterval(updateCountdown, 86400000); // Update once per day
+        
+        // Fade-in animation
+        const fadeElements = document.querySelectorAll('.fade-in');
+        
+        const observerOptions = {
+            root: null,
+            rootMargin: '0px',
+            threshold: 0.1
+        };
+        
+        const observer = new IntersectionObserver((entries, observer) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+        
+        fadeElements.forEach(element => {
+            observer.observe(element);
+        });
+        
+        // Worker replacement visualization
+        const workerContainer = document.getElementById('workerReplacement');
+        const numWorkers = 40;
+        const columns = 8;
+        const rows = Math.ceil(numWorkers / columns);
+        
+        for (let i = 0; i < numWorkers; i++) {
+            const humanWorker = document.createElement('div');
+            humanWorker.className = 'worker-icon';
+            
+            const aiWorker = document.createElement('div');
+            aiWorker.className = 'worker-icon ai-replacing';
+            
+            const col = i % columns;
+            const row = Math.floor(i / columns);
+            
+            const left = (col * 50) + 10;
+            const top = (row * 50) + 10;
+            
+            humanWorker.style.left = `${left}px`;
+            humanWorker.style.top = `${top}px`;
+            
+            aiWorker.style.left = `${left}px`;
+            aiWorker.style.top = `${top}px`;
+            
+            workerContainer.appendChild(humanWorker);
+            workerContainer.appendChild(aiWorker);
+        }
+        
+        let replacedCount = 0;
+        
+        const workerObserver = new IntersectionObserver((entries) => {
+            if (entries[0].isIntersecting) {
+                startWorkerReplacement();
+                workerObserver.unobserve(workerContainer);
+            }
+        }, observerOptions);
+        
+        workerObserver.observe(workerContainer);
+        
+        function startWorkerReplacement() {
+            const humanWorkers = workerContainer.querySelectorAll('.worker-icon:not(.ai-replacing)');
+            const aiWorkers = workerContainer.querySelectorAll('.ai-replacing');
+            
+            const replaceInterval = setInterval(() => {
+                if (replacedCount >= numWorkers) {
+                    clearInterval(replaceInterval);
+                    
+                    // Reset animation after 3 seconds
+                    setTimeout(() => {
+                        replacedCount = 0;
+                        aiWorkers.forEach(worker => {
+                            worker.style.transform = 'scale(0)';
+                        });
+                        humanWorkers.forEach(worker => {
+                            worker.style.opacity = '1';
+                        });
+                        startWorkerReplacement();
+                    }, 3000);
+                    
+                    return;
+                }
+                
+                humanWorkers[replacedCount].style.opacity = '0.2';
+                aiWorkers[replacedCount].style.transform = 'scale(1)';
+                replacedCount++;
+            }, 100);
+        }
+        
+        // Productivity Chart
+        const productivityCtx = document.getElementById('productivityChart').getContext('2d');
+        const productivityChart = new Chart(productivityCtx, {
+            type: 'line',
+            data: {
+                labels: ['2019 (GPT-2)', '2021', '2023 (GPT-4)', '2025', '2027 (予測AGI)'],
+                datasets: [
+                    {
+                        label: 'AI生産性',
+                        data: [10, 30, 60, 85, 150],
+                        borderColor: '#ff3860',
+                        backgroundColor: 'rgba(255, 56, 96, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    },
+                    {
+                        label: '人間の生産性',
+                        data: [100, 103, 106, 110, 115],
+                        borderColor: '#3273dc',
+                        backgroundColor: 'rgba(50, 115, 220, 0.1)',
+                        tension: 0.1,
+                        fill: true
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'AI vs 人間の生産性比較',
+                        color: '#f5f5f5',
+                        font: {
+                            size: 16
+                        }
+                    },
+                    legend: {
+                        labels: {
+                            color: '#f5f5f5'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: {
+                            color: '#f5f5f5'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#f5f5f5'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Investment Growth Chart
+        const investmentCtx = document.getElementById('investmentGrowthChart').getContext('2d');
+        const investmentChart = new Chart(investmentCtx, {
+            type: 'bar',
+            data: {
+                labels: ['2019', '2021', '2023', '2025 (予測)', '2027 (予測)'],
+                datasets: [{
+                    label: 'AIモデル訓練コスト (百万ドル)',
+                    data: [10, 100, 1000, 10000, 100000],
+                    backgroundColor: 'rgba(255, 56, 96, 0.7)'
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'AIモデル訓練コストの爆発的増加',
+                        color: '#f5f5f5',
+                        font: {
+                            size: 16
+                        }
+                    },
+                    legend: {
+                        labels: {
+                            color: '#f5f5f5'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        type: 'logarithmic',
+                        ticks: {
+                            color: '#f5f5f5'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#f5f5f5'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Economic Impact Chart
+        const economicCtx = document.getElementById('economicImpactChart').getContext('2d');
+        const economicChart = new Chart(economicCtx, {
+            type: 'bar',
+            data: {
+                labels: ['GDP増加', '生産性向上', '人間雇用減少', 'AIエージェント増加'],
+                datasets: [{
+                    label: '2027年予測（現在比 %）',
+                    data: [7, 35, -25, 300],
+                    backgroundColor: [
+                        'rgba(50, 115, 220, 0.7)',
+                        'rgba(50, 115, 220, 0.7)',
+                        'rgba(255, 56, 96, 0.7)',
+                        'rgba(255, 221, 87, 0.7)'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'AIによる経済・社会への影響（2027年予測）',
+                        color: '#f5f5f5',
+                        font: {
+                            size: 16
+                        }
+                    },
+                    legend: {
+                        labels: {
+                            color: '#f5f5f5'
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        ticks: {
+                            color: '#f5f5f5'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            color: '#f5f5f5'
+                        },
+                        grid: {
+                            color: 'rgba(255, 255, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
