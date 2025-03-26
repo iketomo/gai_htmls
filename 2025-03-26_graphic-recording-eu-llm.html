@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>欧州LLM動向 グラフィックレコーディング</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Kaisei+Decol&family=Yomogi&family=Zen+Kurenaido&display=swap');
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: 'Zen Kurenaido', sans-serif;
+      color: #334155;
+      background-color: #f8f9fa;
+      line-height: 1.4;
+      padding: 20px;
+    }
+    
+    .container {
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      padding: 30px;
+      position: relative;
+    }
+    
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      border-bottom: 3px solid #593C47;
+      padding-bottom: 15px;
+    }
+    
+    .title {
+      font-family: 'Kaisei Decol', serif;
+      font-size: 32px;
+      font-weight: bold;
+      background: linear-gradient(45deg, #593C47, #F24405);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      position: relative;
+    }
+    
+    .title::after {
+      content: "";
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, #F2E63D, #F25C05);
+      border-radius: 2px;
+    }
+    
+    .date {
+      font-size: 16px;
+      color: #475569;
+    }
+    
+    .main-content {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    
+    .column {
+      flex: 1;
+      min-width: 300px;
+    }
+    
+    .card {
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      padding: 20px;
+      margin-bottom: 25px;
+      position: relative;
+      border: 2px dashed #593C47;
+    }
+    
+    .card-with-glass {
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .section-title {
+      font-family: 'Yomogi', cursive;
+      font-size: 18px;
+      color: #1e40af;
+      margin-bottom: 15px;
+      padding-left: 28px;
+      position: relative;
+    }
+    
+    .section-title::before {
+      content: "✏️";
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+    
+    .policy-title::before {
+      content: "📝";
+    }
+    
+    .countries-title::before {
+      content: "🌍";
+    }
+    
+    .companies-title::before {
+      content: "🏢";
+    }
+    
+    .trends-title::before {
+      content: "📊";
+    }
+    
+    .diff-title::before {
+      content: "🔍";
+    }
+    
+    .content-block {
+      margin-bottom: 15px;
+    }
+    
+    .keyword {
+      font-weight: bold;
+      background: linear-gradient(transparent 60%, #F2C53D 60%);
+      padding: 0 2px;
+    }
+    
+    .highlight-text {
+      font-family: 'Kaisei Decol', serif;
+      font-weight: bold;
+      color: #F24405;
+    }
+    
+    .bubble {
+      background-color: #f9f9f9;
+      border-radius: 15px;
+      padding: 12px;
+      margin: 10px 0;
+      position: relative;
+      border: 2px solid #593C47;
+    }
+    
+    .bubble::after {
+      content: "";
+      position: absolute;
+      top: -10px;
+      left: 20px;
+      border-width: 0 10px 10px;
+      border-style: solid;
+      border-color: #593C47 transparent;
+    }
+    
+    .arrow {
+      display: flex;
+      align-items: center;
+      margin: 15px 0;
+      font-weight: bold;
+      color: #475569;
+    }
+    
+    .arrow::before {
+      content: "→";
+      margin-right: 10px;
+      font-size: 20px;
+      color: #F25C05;
+    }
+    
+    .country-card {
+      padding: 15px;
+      margin-bottom: 15px;
+      border-left: 4px solid #F24405;
+      background-color: rgba(242, 230, 60, 0.1);
+    }
+    
+    .country-name {
+      font-family: 'Yomogi', cursive;
+      font-size: 16px;
+      font-weight: bold;
+      color: #593C47;
+      margin-bottom: 8px;
+    }
+    
+    .company-box {
+      background-color: rgba(242, 197, 60, 0.2);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+      border-bottom: 2px solid #F25C05;
+    }
+    
+    .company-name {
+      font-family: 'Kaisei Decol', serif;
+      font-weight: bold;
+      color: #593C47;
+      font-size: 16px;
+      margin-bottom: 5px;
+      position: relative;
+      padding-left: 20px;
+    }
+    
+    .company-name::before {
+      content: "🚀";
+      position: absolute;
+      left: 0;
+      top: 2px;
+    }
+    
+    .connection-line {
+      border-left: 2px dashed #593C47;
+      margin-left: 10px;
+      padding-left: 15px;
+    }
+    
+    .tag {
+      display: inline-block;
+      background-color: #F2C53D;
+      color: #593C47;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 12px;
+      margin-right: 5px;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    
+    .feature-list {
+      margin: 10px 0;
+    }
+    
+    .feature-item {
+      position: relative;
+      padding-left: 20px;
+      margin-bottom: 8px;
+    }
+    
+    .feature-item::before {
+      content: "✓";
+      position: absolute;
+      left: 0;
+      color: #F24405;
+    }
+    
+    .footer {
+      margin-top: 30px;
+      padding-top: 15px;
+      border-top: 2px dashed #593C47;
+      font-size: 14px;
+      color: #475569;
+      text-align: right;
+    }
+    
+    .hand-drawn-box {
+      border: 2px solid #593C47;
+      border-radius: 15px;
+      padding: 15px;
+      position: relative;
+      margin: 20px 0;
+    }
+    
+    .hand-drawn-box::before {
+      content: "";
+      position: absolute;
+      top: -10px;
+      left: 20px;
+      background: white;
+      padding: 0 10px;
+      font-family: 'Yomogi', cursive;
+      color: #F24405;
+      font-weight: bold;
+    }
+    
+    .policy-box::before {
+      content: "政策・支援";
+    }
+    
+    .trend-box::before {
+      content: "技術トレンド";
+    }
+    
+    .diff-box::before {
+      content: "差別化";
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1 class="title">欧州のLLM分野における過去3年間の主要動向</h1>
+      <div class="date">2025年3月26日</div>
+    </div>
+    
+    <div class="main-content">
+      <!-- 左カラム -->
+      <div class="column">
+        <div class="card">
+          <h2 class="section-title policy-title">EU・各国政府によるAI政策・LLM関連支援</h2>
+          
+          <div class="hand-drawn-box policy-box">
+            <div class="content-block">
+              <span class="keyword">AIメイド・イン・ヨーロッパ</span> 戦略
+              <div class="feature-list">
+                <div class="feature-item">Digital Europe Programme：約6,750万ユーロ</div>
+                <div class="feature-item">欧州の言語的多様性に対応したLLM創出支援</div>
+                <div class="feature-item">世界初の包括的AI法（AI Act）策定</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="country-card">
+            <h3 class="country-name">🇫🇷 フランス</h3>
+            <div class="content-block">
+              <div class="bubble">
+                「AIに関する国家戦略」のもと投資強化
+                <br>
+                BpifranceによるAI投資：<span class="highlight-text">100億ユーロ規模</span>
+                <br>
+                マクロン政権：<span class="highlight-text">約1,090億ユーロの投資</span>確保
+              </div>
+              <div class="arrow">Mistral AI：設立直後に1億500万ユーロ調達成功</div>
+              <div class="connection-line">
+                HuggingFace社・IDRISとの協力で<span class="keyword">BLOOMプロジェクト</span>支援
+                <br>
+                スーパーコンピュータ「ジャン・ゼイ」活用
+                <br>
+                46言語対応の大規模モデル公開
+              </div>
+            </div>
+          </div>
+          
+          <div class="country-card">
+            <h3 class="country-name">🇩🇪 ドイツ</h3>
+            <div class="content-block">
+              <div class="bubble">
+                「AI国家戦略」を掲げ<span class="keyword">AIの主権確保</span>に注力
+              </div>
+              <div class="connection-line">
+                経済気候省（BMWK）：OpenGPT-Xプロジェクト資金提供
+                <br>
+                EU公式24言語でオープンソースLLM「Teuken-7B」公開
+                <br>
+                <span class="keyword">Aleph Alpha</span>：約4億6000万ユーロの資金調達
+                <br>
+                ハイデルベルクにAleph Alpha Research設立、長期研究資金3億ユーロ
+              </div>
+            </div>
+          </div>
+          
+          <div class="country-card">
+            <h3 class="country-name">🇬🇧 イギリス</h3>
+            <div class="content-block">
+              <div class="bubble">
+                EU離脱後も欧州有数のAI拠点として存在感
+              </div>
+              <div class="connection-line">
+                「Foundation Model Taskforce」創設：初期資金<span class="highlight-text">1億ポンド</span>
+                <br>
+                2023年度予算：AI研究向け計算インフラに<span class="highlight-text">9億ポンド</span>投資
+                <br>
+                <span class="keyword">DeepMind</span>・Graphcoreなど著名企業が拠点
+                <br>
+                「2030年までに科学技術のスーパー大国に」目標
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card card-with-glass">
+          <h2 class="section-title companies-title">存在感を発揮する企業・研究機関</h2>
+          
+          <div class="company-box">
+            <h3 class="company-name">Mistral AI（フランス）</h3>
+            <div>
+              <span class="tag">2023年創業</span>
+              <span class="tag">欧州史上最大級の初期資金</span>
+            </div>
+            <div class="content-block">
+              <ul class="feature-list">
+                <li class="feature-item">元Google DeepMind・Meta出身研究者が創業</li>
+                <li class="feature-item">オープンソースLLM開発に注力</li>
+                <li class="feature-item">「最先端AIを誰もが使えるように」理念</li>
+                <li class="feature-item">ChatGPT-3.5相当の性能を持つモデルを個人PCで動作可能に</li>
+                <li class="feature-item">評価額20億ドル達成（2023年）</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="company-box">
+            <h3 class="company-name">Aleph Alpha（ドイツ）</h3>
+            <div>
+              <span class="tag">2019年創業</span>
+              <span class="tag">ハイデルベルク拠点</span>
+            </div>
+            <div class="content-block">
+              <ul class="feature-list">
+                <li class="feature-item">汎用LLM「Luminous」シリーズ開発</li>
+                <li class="feature-item">企業・政府向けソリューションに強み</li>
+                <li class="feature-item">「AI操作システム（OS）」提供へ戦略転換</li>
+                <li class="feature-item">BMW・シーメンスなど大企業が出資</li>
+                <li class="feature-item">非営利研究部門設立で長期研究推進</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 中央カラム -->
+      <div class="column">
+        <div class="card">
+          <h2 class="section-title countries-title">活発な国々とその理由</h2>
+          
+          <div class="country-card">
+            <h3 class="country-name">🇫🇷 フランス</h3>
+            <div class="content-block">
+              <div class="bubble">
+                政府主導のAI支援策が充実
+                <br>
+                スタートアップから研究機関までエコシステム形成
+              </div>
+              <div class="arrow">パリはMeta・GoogleのAI研究拠点も存在</div>
+              <div class="connection-line">
+                <span class="highlight-text">Mistral AI</span>の躍進で一躍脚光
+                <br>
+                「欧州からOpenAIに匹敵するLLM企業を」機運
+                <br>
+                <span class="keyword">BigScience</span>プロジェクト：BLOOM開発
+                <br>
+                語学資源の多様性・オープンサイエンス文化が強み
+              </div>
+            </div>
+          </div>
+          
+          <div class="country-card">
+            <h3 class="country-name">🇩🇪 ドイツ</h3>
+            <div class="content-block">
+              <div class="bubble">
+                「インダストリー4.0」先進国
+                <br>
+                製造業と結びついたAI応用に強み
+              </div>
+              <div class="arrow">企業向けLLMの開発が特徴的</div>
+              <div class="connection-line">
+                <span class="highlight-text">Aleph Alpha</span>：「ドイツ版OpenAI」と称される
+                <br>
+                企業が自前データでモデルを調整できる仕組みに注力
+                <br>
+                <span class="keyword">産業適用志向</span>と<span class="keyword">技術主権の確立</span>が目標
+                <br>
+                官民の巨額投資と連携による欧州発AI基盤構築
+              </div>
+            </div>
+          </div>
+          
+          <div class="country-card">
+            <h3 class="country-name">🇬🇧 イギリス</h3>
+            <div class="content-block">
+              <div class="bubble">
+                欧州随一のAI研究拠点
+                <br>
+                <span class="highlight-text">DeepMind</span>など世界的研究機関を輩出
+              </div>
+              <div class="arrow">基礎AI研究で突出した成果</div>
+              <div class="connection-line">
+                <span class="keyword">Chinchilla論文</span>：効率的なモデルスケーリング法則提示
+                <br>
+                AIセーフティサミット主導など政策面でも存在感
+                <br>
+                <span class="keyword">トップクラスの人材</span>と<span class="keyword">研究機関の集積</span>が強み
+                <br>
+                英語圏の利点を活かし米国との連携・競争に直接参入
+              </div>
+            </div>
+          </div>
+          
+          <div class="company-box">
+            <h3 class="company-name">DeepMind（英国）</h3>
+            <div>
+              <span class="tag">2010年ロンドン創業</span>
+              <span class="tag">現Google DeepMind</span>
+            </div>
+            <div class="content-block">
+              <ul class="feature-list">
+                <li class="feature-item">早期からディープラーニング研究で世界をリード</li>
+                <li class="feature-item">Chinchillaモデルでスケーリング法則を示した</li>
+                <li class="feature-item">Gopher（50億文語規模）、Sparrow（対話特化）開発</li>
+                <li class="feature-item">Google社内Brainチームと統合しPaLM 2・Gemini開発</li>
+                <li class="feature-item">欧州AI人材・研究水準の高さを象徴する存在</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div class="company-box">
+            <h3 class="company-name">Hugging Face（仏・米）</h3>
+            <div>
+              <span class="tag">2016年創業</span>
+              <span class="tag">フランス人起業家</span>
+            </div>
+            <div class="content-block">
+              <ul class="feature-list">
+                <li class="feature-item">Transformersライブラリなど必須ツール提供</li>
+                <li class="feature-item">BigScienceプロジェクト主導</li>
+                <li class="feature-item">BLOOM：46言語・13プログラミング言語対応</li>
+                <li class="feature-item">「完全公開・透明なLLM」として注目</li>
+                <li class="feature-item">AIコミュニティのハブ企業として成長</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 右カラム -->
+      <div class="column">
+        <div class="card">
+          <h2 class="section-title trends-title">技術的トレンド</h2>
+          
+          <div class="hand-drawn-box trend-box">
+            <div class="content-block">
+              <span class="keyword">多言語・多文化対応の追求</span>
+              <div class="feature-list">
+                <div class="feature-item">BLOOM：46言語対応の多言語モデル</div>
+                <div class="feature-item">低リソース言語（バスク語・アフリカ諸語）含む</div>
+                <div class="feature-item">Teuken-7B：欧州公式24か国語で訓練</div>
+                <div class="feature-item">訓練データの50%を英語以外が占める設計</div>
+                <div class="feature-item">ローカライズされた知識・ニュアンス対応</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="hand-drawn-box trend-box">
+            <div class="content-block">
+              <span class="keyword">オープンソース志向と透明性</span>
+              <div class="feature-list">
+                <div class="feature-item">BLOOM：「100%オープンで透明」を掲げる</div>
+                <div class="feature-item">モデル構造・データセット・ログすべて公開</div>
+                <div class="feature-item">悪用禁止の責任あるAIライセンス適用</div>
+                <div class="feature-item">Mistral AI：積極的なオープンソース公開</div>
+                <div class="feature-item">Aleph Alpha：研究成果を非営利組織通じ公開</div>
+                <div class="feature-item">「ブラックボックスではないLLM」を目指す</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="hand-drawn-box trend-box">
+            <div class="content-block">
+              <span class="keyword">省リソース・効率化技術の重視</span>
+              <div class="feature-list">
+                <div class="feature-item">限られた計算資源で最大限の性能追求</div>
+                <div class="feature-item">Chinchillaスケーリング法則：最適バランス提唱</div>
+                <div class="feature-item">Aleph Alpha：トークナイザ不要アーキテクチャ</div>
+                <div class="feature-item">OpenGPT-X：独自多言語トークナイザで効率化</div>
+                <div class="feature-item">Mistral 7B：家庭用PCで動作する軽量設計</div>
+                <div class="feature-item">「大きさより賢さ」「汎用より適応」重視</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="hand-drawn-box trend-box">
+            <div class="content-block">
+              <span class="keyword">マルチモーダル・専門特化</span>
+              <div class="feature-list">
+                <div class="feature-item">FLAMINGO：画像と言語を統合したモデル</div>
+                <div class="feature-item">医療・法務など特定分野向けLLM研究活発化</div>
+                <div class="feature-item">「AIテストベッド」で公共分野適用実験</div>
+                <div class="feature-item">Few-shot学習・LoRAなど省データ手法注目</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <h2 class="section-title diff-title">米中に対する差別化ポイント</h2>
+          
+          <div class="hand-drawn-box diff-box">
+            <div class="content-block">
+              <span class="keyword">倫理・人権を重視した規制枠組み</span>
+              <div class="feature-list">
+                <div class="feature-item">AI法：世界初の包括的AI規制</div>
+                <div class="feature-item">リスクに基づく分類・規制アプローチ</div>
+                <div class="feature-item">汎用LLMに透明性・安全管理義務</div>
+                <div class="feature-item">AI倫理ガイドライン・専門家グループ提言</div>
+                <div class="feature-item">「信頼されるAI」で国際標準リード</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="hand-drawn-box diff-box">
+            <div class="content-block">
+              <span class="keyword">プライバシー・データ保護の徹底</span>
+              <div class="feature-list">
+                <div class="feature-item">GDPR・イタリアのChatGPT一時禁止事例</div>
+                <div class="feature-item">個人情報保護の厳格な姿勢</div>
+                <div class="feature-item">企業内サーバでの運用を推奨</div>
+                <div class="feature-item">機密データを外部に出さない設計重視</div>
+                <div class="feature-item">「個人の権利」を重んじる立場</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="hand-drawn-box diff-box">
+            <div class="content-block">
+              <span class="keyword">オープンかつ人間中心のアプローチ</span>
+              <div class="feature-list">
+                <div class="feature-item">透明性・市民参加を重視</div>
+                <div class="feature-item">AIパクト：企業と協調的なルール作り</div>
+                <div class="feature-item">差別・偏見の回避、有害用途禁止</div>
+                <div class="feature-item">「信頼できるAI」「説明責任あるAI」</div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="hand-drawn-box diff-box">
+            <div class="content-block">
+              <span class="keyword">「第三の選択肢」としての立場</span>
+              <div class="feature-list">
+                <div class="feature-item">オープンイノベーションと多国間協調</div>
+                <div class="feature-item">人権・民主主義の価値観と調和</div>
+                <div class="feature-item">中小企業・非英語圏も包摂するAI</div>
+                <div class="feature-item">「フロンティア直下の実用AI」に注力</div>
+                <div class="feature-item">「人間中心で持続可能なAI」路線</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="footer">
+      作成日：2025年3月26日 | 出典：欧州委員会公式発表、政府発表、信頼性の高いメディア報道、企業公式情報
+    </div>
+  </div>
+</body>
+</html>
