@@ -12,6 +12,7 @@
 - [ai_agent_demo.html](./ai_agent_demo.html)
 - [ai-traditional-program-demo.html](./ai-traditional-program-demo.html)
 - [ai-productivity-comparison.html](./ai-productivity-comparison.html)
+- [2025-03-26_mobile-page.html](./2025-03-26_mobile-page.html)
 - [2025-03-26_manus-infographic.html](./2025-03-26_manus-infographic.html)
 - [2025-03-26_manus-ai-summary.html](./2025-03-26_manus-ai-summary.html)
 - [2025-03-26_graphic-recording-eu-llm.html](./2025-03-26_graphic-recording-eu-llm.html)
